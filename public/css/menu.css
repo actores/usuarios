@@ -7,6 +7,13 @@
         0px 0px 80px -23px rgba(0, 0, 0, 0.03) !important;
         border: none;
 }
+
+.areas {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
 .items-menu  {
     display: flex;
     flex-wrap: wrap;

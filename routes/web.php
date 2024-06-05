@@ -17,8 +17,12 @@ Route::get('/dashboard', function () {
 Route::get('/menu/socios', function () {
     return view('areas/socios/menu');
 });
-Route::get('/menu/socios/repertorio', [SocioController::class, 'listarSocios']);
-Route::post('/menu/socios/repertorio/buscar', [SocioController::class, 'buscarIdentificacion']);
+
+Route::get('/menu/socios/repertorio', function () {
+    return view('areas/socios/buscador');
+});
+
+Route::match(['get', 'post'],'/menu/socios/repertorio/buscar', [SocioController::class, 'buscarIdentificacion']);
 
 // Rutas personalizadas
 

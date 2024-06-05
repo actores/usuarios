@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('socios', function (Blueprint $table) {
             $table->id();
-            $table->string('identificacion')->unique();
-            $table->string('nombre');
-            $table->integer('numeroSocio');
-            $table->integer('numeroArtista');
-            $table->integer('tipoSocio');
+            $table->string('identificacion')->unique()->nullable(false);
+            $table->string('nombre', 100)->nullable(false); // Se establece una longitud máxima de 100 caracteres
+            $table->unsignedInteger('numeroSocio')->nullable(false);
+            $table->unsignedInteger('numeroArtista')->nullable(false);
+            $table->unsignedInteger('tipoSocio')->nullable(false);
+            $table->string('imagen')->nullable();
             $table->timestamps();
         });
     }

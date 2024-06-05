@@ -7,18 +7,12 @@ use App\Models\Socio;
 
 class SocioController extends Controller
 {
-    public function listarSocios(Request $request)
-    {
-
-        $socios = Socio::paginate(10);
-        return view('areas.socios.repertorio')->with('socios', $socios);
-    }
-
     public function buscarIdentificacion(Request $request){
         $data_buscar = $request->data_buscar;
-
-        $socios = Socio::where('nombre', 'like', '%' . $data_buscar . '%')->get();
+        $socios = Socio::where('identificacion', 'like', '%'.$data_buscar.'%')->get();
+        // $socios->appends(['data_buscar' => $data_buscar]);
 
         return view('areas.socios.repertorio')->with('socios', $socios);
     }
+
 }
