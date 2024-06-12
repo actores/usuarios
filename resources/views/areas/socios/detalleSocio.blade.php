@@ -1,9 +1,11 @@
 <x-app-layout>
     <style>
         .avatar_socio {
-            width: 50px;
-            height: 50px;
+            display: block;
+            width: 7rem;
+            height: 7rem;
             border-radius: 50%;
+            padding: 0;
         }
 
 
@@ -39,59 +41,84 @@
     <section class="section_data">
         <div class="container">
             <!-- Recorrido - Menú -->
-            <div class=" d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
                 <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
                     aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/menu/socios') }}">Socios</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Repertorio</li>
+                        <li class="breadcrumb-item"><a href="{{ url('/menu/socios/repertorio') }}">Repertorio</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $socio->nombre }}</li>
                     </ol>
                 </nav>
+
                 <div class="">
-                    <div class="btn btn-secondary btn-sm">Nuevo socio</div>
-                    <div class="btn btn-secondary btn-sm">Exportar</div>
+                    <div class="btn btn-secondary btn-sm">Nueva producción</div>
+                    <div class="btn btn-secondary btn-sm">Exportar repertorio</div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mt-5">
                 <div class="col-md-12">
-                    <table class="" id="data-table-socios-repertorio">
+                    <div class="profile d-flex justify-content-between align-items-center gap-4">
+                        <span class="d-flex gap-4">
+                            <img src="{{ $socio->imagen }}" alt="" class="avatar_socio">
+                            <div class="d-flex flex-column justify-content-center">
+                                <h4 class="mb-0">{{ $socio->nombre }}</h4>
+                                <span>{{ $socio->identificacion }}</span>
+                            </div>
+                        </span>
+                        <span class="d-flex flex-column ml-5">
+                            <span class="mb-0">Número Socio</span>
+                            <span>{{ $socio->numeroSocio }}</span>
+                        </span>
+                        <span class="d-flex flex-column ml-5">
+                            <span class="mb-0">Número Artista</span>
+                            <span>{{ $socio->numeroArtista }}</span>
+                        </span>
+                        <span class="d-flex flex-column ml-5">
+                            <span class="mb-0">Tipo de socio</span>
+                            @if ($socio->tipoSocio == 1)
+                                <span>Pleno Derecho</span>
+                            @elseif($socio->tipoSocio == 2)
+                                <span>Adherido</span>
+                            @endif
+                        </span>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-12">
+                    <table class="table" id="data-table-socios-repertorio-detalle">
                         <thead>
                             <tr>
-                                <th scope="col">SOCIO</th>
-                                <th scope="col">IDENTIFICACIÓN</th>
-                                <th scope="col">NÚMERO DE SOCIO</th>
-                                <th scope="col">NÚMERO DE ARTISTA</th>
+                                <th scope="col">TÍTULO OBRA</th>
+                                <th scope="col">PERSONAJE</th>
+                                <th scope="col">TIPO PRODUCCION</th>
+                                <th scope="col">PAÍS</th>
+                                <th scope="col">AÑO</th>
+                                <th scope="col">DIRECTOR</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($socios as $socio)
+                            @foreach ($producciones as $produccion)
                                 <tr>
-                                    <td scope="row">
-                                        <div class="d-flex gap-3">
-                                            <img src="{{ $socio->imagen }}" alt="" class="avatar_socio">
-                                            <span class="d-flex flex-column">
-                                                <span>{{ $socio->nombre }}</span>
-                                                @if ($socio->tipoSocio == 1)
-                                                    <span>Pleno Derecho</span>
-                                                @elseif($socio->tipoSocio == 2)
-                                                    <span>Adherido</span>
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>{{ $socio->identificacion }}</td>
-                                    <td>{{ $socio->numeroSocio }}</td>
-                                    <td>{{ $socio->numeroArtista }}</td>
+                                    <th>{{ $produccion->tituloObra }}</th>
+                                    <td>{{ $produccion->personaje }}</td>
+                                    <td>{{ $produccion->tipoProduccion }}</td>
+                                    <td>{{ $produccion->pais }}</td>
+                                    <td>{{ $produccion->anio }}</td>
+                                    <td>{{ $produccion->director }}</td>
                                     <td>
-                                        <a href="/menu/socios/repertorio/socio/{{ $socio->id }}">Detalles</a>
+                                        <a href="">Editar</a>
+                                        <a href="">Eliminar</a>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>
@@ -99,7 +126,7 @@
 
     @push('scripts')
         <script>
-            new DataTable('#data-table-socios-repertorio', {
+            new DataTable('#data-table-socios-repertorio-detalle', {
                 responsive: true,
                 rowReorder: {
                     selector: 'td:nth-child(2)'

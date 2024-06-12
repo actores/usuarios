@@ -18,9 +18,8 @@ Route::get('/menu/socios', function () {
     return view('areas/socios/menu');
 });
 
-Route::get('/menu/socios/repertorio', function () {
-    return view('areas/socios/buscador');
-});
+Route::get('/menu/socios/repertorio', [SocioController::class, 'listarTotalSocios']);
+Route::get('/menu/socios/repertorio/socio/{id}', [SocioController::class, 'detalleSocio']);
 
 Route::match(['get', 'post'],'/menu/socios/repertorio/buscar', [SocioController::class, 'buscarIdentificacion']);
 

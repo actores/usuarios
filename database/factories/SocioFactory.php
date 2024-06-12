@@ -12,12 +12,14 @@ class SocioFactory extends Factory
     public function definition()
     {
         return [
-            'identificacion' => $this->faker->unique()->randomNumber(8),
+            'identificacion' => $this->faker->unique()->numerify('##########'), // Genera un número único de 10 dígitos
             'nombre' => $this->faker->name,
-            'numeroSocio' => $this->faker->randomNumber(4),
-            'numeroArtista' => $this->faker->randomNumber(4),
-            'tipoSocio' => $this->faker->randomElement([1, 2]),
-            'imagen' => $this->faker->imageUrl(), // Genera una URL de imagen falsa
+            'numeroSocio' => $this->faker->numberBetween(1, 1000),
+            'numeroArtista' => $this->faker->numberBetween(1, 1000),
+            'tipoSocio' => $this->faker->numberBetween(1, 2), // Por ejemplo, tipos de 1 a 5
+            'imagen' => $this->faker->imageUrl(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
