@@ -17,7 +17,8 @@ class SocioFactory extends Factory
             'numeroSocio' => $this->faker->numberBetween(1, 1000),
             'numeroArtista' => $this->faker->numberBetween(1, 1000),
             'tipoSocio' => $this->faker->numberBetween(1, 2), // Por ejemplo, tipos de 1 a 5
-            'imagen' => $this->faker->imageUrl(),
+            // 'imagen' => $this->faker->imageUrl(),
+            'imagen' => 'https://cdn-icons-png.flaticon.com/512/8188/8188362.png',
             'created_at' => now(),
             'updated_at' => now(),
         ];

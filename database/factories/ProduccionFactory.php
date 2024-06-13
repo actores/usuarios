@@ -21,7 +21,7 @@ class ProduccionFactory extends Factory
             'tituloObra' => $this->faker->sentence,
             'personaje' => $this->faker->name,
             'tipoProduccion' => $this->faker->word,
-            'país' => $this->faker->country,
+            'pais' => $this->faker->country,
             'anio' => $this->faker->year,
             'director' => $this->faker->name,
             'socio_id' => \App\Models\Socio::factory(), // Asumiendo que también tienes un factory para el modelo Socio

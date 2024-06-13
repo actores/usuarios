@@ -6,6 +6,8 @@
             height: 7rem;
             border-radius: 50%;
             padding: 0;
+            object-fit: cover;
+            filter: grayscale(100%);
         }
 
 
@@ -53,7 +55,7 @@
                 </nav>
 
                 <div class="">
-                    <div class="btn btn-secondary btn-sm">Nueva producción</div>
+                    <div class="btn btn-secondary btn-sm">Buscar producción</div>
                     <div class="btn btn-secondary btn-sm">Exportar repertorio</div>
                 </div>
             </div>
@@ -61,7 +63,7 @@
                 <div class="col-md-12">
                     <div class="profile d-flex justify-content-between align-items-center gap-4">
                         <span class="d-flex gap-4">
-                            <img src="{{ $socio->imagen }}" alt="" class="avatar_socio">
+                            <img src="{{ asset('storage/' . $socio->imagen) }}" alt="" class="avatar_socio">
                             <div class="d-flex flex-column justify-content-center">
                                 <h4 class="mb-0">{{ $socio->nombre }}</h4>
                                 <span>{{ $socio->identificacion }}</span>
