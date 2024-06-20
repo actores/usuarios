@@ -79,15 +79,17 @@
                         <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/menu/distribucion') }}">Distribución</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/proveedores') }}">Proveedores</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $proveedor->nombre }}</li>
+                        <li class="breadcrumb-item"><a href="{{ url('/proveedores/detalle'). '/'.$proveedor->id }}">{{ $proveedor->nombre }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $pago->anio_explotacion }}</li>
                     </ol>
                 </nav>
 
                 <div class="">
-                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalPago">Nuevo pago</div>
+                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">Nuevo abono</div>
                     <div class="btn btn-secondary btn-sm">Exportar</div>
                 </div>
             </div>
+            
             <div class="row mt-5">
                 <div class="col-md-12">
                     <div class="profile d-flex justify-content-between align-items-center gap-4">
@@ -120,31 +122,25 @@
                     <table class="table" id="data-table-proveedores-pagos-detalle">
                         <thead>
                             <tr>
-                                <th>AÑO EXPLOTACIÓN</th>
-                                <th>IMPORTE</th>
+                                <th>AÑO DE ABONO</th>
+                                <th>ABONO</th>
                                 <th>FACTURA</th>
-                                <th>PROCENTAJE</th>
-                                <th>ESTADO PAGO</th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($pagos as $pago)
+
+                            @foreach($detallesPago as $detallePago)
+
+
                             @php
-                            $rutaArchivo = 'facturas/' . $pago->factura;
+                            $rutaArchivo = 'facturas/' . $detallePago->factura;
                             $urlDescarga = asset(Storage::url($rutaArchivo));
                             @endphp
-
                             <tr>
-                                <td>{{$pago->anio_explotacion}}</td>
-                                <td>${{ number_format($pago->importe, 0, ',', '.') }}</td>
+                                <td>{{$detallePago->anio_pago}}</td>
+                                <td>${{ number_format($detallePago->importe, 0, ',', '.') }}</td>
                                 <td>
                                     <a href="{{$urlDescarga}}" target="_blank">Ver factura aquí</a>
-                                </td>
-                                <td>%</td>
-                                <td>{{$pago->estadoPago}}</td>
-                                <td>
-                                    <a href="/pagos/detalle/abonos/{{$proveedor->id}}/{{$pago->id}}">Ver abonos</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -156,21 +152,21 @@
         </div>
     </section>
 
-    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalAbono" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo pago</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo abono</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/pago/nuevo" method="POST" enctype="multipart/form-data" class="px-4 py-2" id="form_nuevo_pago">
+                    <form action="/abonos/nuevo" method="POST" enctype="multipart/form-data" class="px-4 py-2" id="form_nuevo_abono">
                         @csrf
 
-                        <input type="hidden" name="InputProveedorId" value="{{ $proveedor->id }}">
+                        <input type="hidden" name="InputPagoProveedorId" value="{{$pago->id}}">
                         <div class="mb-3">
-                            <label for="inputAnioExplotacion" class="form-label">Año explotación</label>
-                            <input type="number" class="form-control" name="inputAnioExplotacion" id="inputAnioExplotacion" placeholder="Ingresa el año de explotación">
+                            <label for="inputAnioPago" class="form-label">Año de abono</label>
+                            <input type="number" class="form-control" name="inputAnioPago" id="inputAnioPago" placeholder="Ingresa el año de pago de abono">
                         </div>
                         <div class="mb-3">
                             <label for="inputImporte" class="form-label">Importe</label>
@@ -179,14 +175,6 @@
                         <div class="mb-3">
                             <label for="inputFactura" class="form-label">Factura</label>
                             <input type="file" class="form-control" name="inputFactura" id="inputFactura" placeholder="Seleccionar factura">
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="inputEstadoPago" class="form-label">Estado Pago</label>
-                            <select class="form-select" aria-label="Estado de pago" name="inputEstadoPago" id="inputEstadoPago">
-                                <option value="Completo">Completo</option>
-                                <option value="En proceso">En proceso</option>
-                                <option value="Pendiente" selected>Pendiente</option>
-                            </select>
                         </div>
                         <div class="modal-footer mt-4">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -243,9 +231,9 @@
 
 
         $(document).ready(function() {
-            $('#form_nuevo_pago').validate({
+            $('#form_nuevo_abono').validate({
                 rules: {
-                    inputAnioExplotacion: {
+                    inputAnioPago: {
                         required: true,
                         digits: true
                     },
@@ -255,13 +243,10 @@
                     },
                     inputFactura: {
                         required: true,
-                    },
-                    inputEstadoPago: {
-                        required: true,
                     }
                 },
                 messages: {
-                    inputAnioExplotacion: {
+                    inputAnioPago: {
                         required: "Por favor, ingresa el nombre",
                         digits: "El número de nit debe contener solo dígitos"
                     },
@@ -272,9 +257,6 @@
                     inputFactura: {
                         required: "Por favor, ingresa el número de nit"
 
-                    },
-                    inputEstadoPago: {
-                        required: "Por favor, ingresa el dirección",
                     }
                 },
                 submitHandler: function(form) {

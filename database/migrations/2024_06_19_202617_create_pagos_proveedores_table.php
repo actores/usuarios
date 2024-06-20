@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('proveedor_id');
             $table->year('anio_explotacion');
-            $table->decimal('importe', 10, 2);
+           $table->decimal('importe', 14, 2);
             $table->string('factura')->nullable();
             $table->string('estadoPago');
             $table->timestamps();

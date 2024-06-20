@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\pagoProveedores\AbonoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\pagoProveedores\ProveedorController;
@@ -48,6 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/proveedores', [ProveedorController::class, 'listarProveedores']);
     Route::post('/proveedores/nuevo', [ProveedorController::class, 'nuevoProveedor']);
     Route::get('/proveedores/detalle/{id}', [ProveedorController::class, 'detalleProveedor']);
+    Route::post('/pago/nuevo', [PagoController::class, 'nuevoPago']);
+
+
+    Route::get('/pagos/detalle/abonos/{proveedorId}/{pagoId}', [AbonoController::class, 'detalleAbono']);
+    Route::post('/abonos/nuevo', [AbonoController::class, 'nuevoAbono']);
     
 
 });
