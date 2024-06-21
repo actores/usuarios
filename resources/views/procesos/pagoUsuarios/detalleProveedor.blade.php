@@ -123,6 +123,7 @@
                                 <th>AÑO EXPLOTACIÓN</th>
                                 <th>IMPORTE</th>
                                 <th>FACTURA</th>
+                                <th>TOTAl ABONOS</th>
                                 <th>PROCENTAJE</th>
                                 <th>ESTADO PAGO</th>
                                 <th></th>
@@ -141,7 +142,8 @@
                                 <td>
                                     <a href="{{$urlDescarga}}" target="_blank">Ver factura aquí</a>
                                 </td>
-                                <td>%</td>
+                                <td>${{ number_format($pago->total_abonos, 0, ',', '.')}}</td>
+                                <td class="{{number_format($pago->porcentaje_pago, 0) > 51 ? 'text-success' : 'text-danger'}} fw-bold">{{number_format($pago->porcentaje_pago, 0)}}%</td>
                                 <td>{{$pago->estadoPago}}</td>
                                 <td>
                                     <a href="/pagos/detalle/abonos/{{$proveedor->id}}/{{$pago->id}}">Ver abonos</a>

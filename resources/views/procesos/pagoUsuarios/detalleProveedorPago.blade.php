@@ -54,47 +54,52 @@
         <div class="container">
 
             @if (session('success'))
-            <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: "{{ session('success') }}",
-                    text: "{{ session('success') }}"
-                });
-            </script>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: "{{ session('success') }}",
+                        text: "{{ session('success') }}"
+                    });
+                </script>
             @endif
 
             @if (session('error'))
-            <script>
-                Swal.fire({
-                    icon: 'error',
-                    title: "{{ session('error') }}",
-                    text: "{{ session('error') }}"
-                });
-            </script>
+                <script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: "{{ session('error') }}",
+                        text: "{{ session('error') }}"
+                    });
+                </script>
             @endif
             <!-- Recorrido - Menú -->
             <div class="d-flex justify-content-between align-items-center">
-                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
+                    aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/menu/distribucion') }}">Distribución</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/proveedores') }}">Proveedores</a></li>
-                        <li class="breadcrumb-item"><a href="{{ url('/proveedores/detalle'). '/'.$proveedor->id }}">{{ $proveedor->nombre }}</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ url('/proveedores/detalle') . '/' . $proveedor->id }}">{{ $proveedor->nombre }}</a>
+                        </li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $pago->anio_explotacion }}</li>
                     </ol>
                 </nav>
 
                 <div class="">
-                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">Nuevo abono</div>
+                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">Nuevo
+                        abono</div>
                     <div class="btn btn-secondary btn-sm">Exportar</div>
                 </div>
             </div>
-            
+
             <div class="row mt-5">
                 <div class="col-md-12">
                     <div class="profile d-flex justify-content-between align-items-center gap-4">
                         <span class="d-flex gap-4">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2202/2202942.png" alt="" class="avatar_socio">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2202/2202942.png" alt=""
+                                class="avatar_socio">
                             <div class="d-flex flex-column justify-content-center">
                                 <h4 class="mb-0">{{ $proveedor->nombre }}</h4>
                                 <span>{{ $proveedor->nit }}</span>
@@ -124,25 +129,27 @@
                             <tr>
                                 <th>AÑO DE ABONO</th>
                                 <th>ABONO</th>
+                                <th>TASA ADMIN</th>
+                                <th>TASA BIENESTAR</th>
                                 <th>FACTURA</th>
                             </tr>
                         </thead>
                         <tbody>
 
-                            @foreach($detallesPago as $detallePago)
-
-
-                            @php
-                            $rutaArchivo = 'facturas/' . $detallePago->factura;
-                            $urlDescarga = asset(Storage::url($rutaArchivo));
-                            @endphp
-                            <tr>
-                                <td>{{$detallePago->anio_pago}}</td>
-                                <td>${{ number_format($detallePago->importe, 0, ',', '.') }}</td>
-                                <td>
-                                    <a href="{{$urlDescarga}}" target="_blank">Ver factura aquí</a>
-                                </td>
-                            </tr>
+                            @foreach ($detallesPago as $detallePago)
+                                @php
+                                    $rutaArchivo = 'facturas/' . $detallePago->factura;
+                                    $urlDescarga = asset(Storage::url($rutaArchivo));
+                                @endphp
+                                <tr>
+                                    <td>{{ $detallePago->anio }}</td>
+                                    <td>${{ number_format($detallePago->importe, 0, ',', '.') }}</td>
+                                    <td>{{ number_format($detallePago->tasa_tipo1, 0, ',', '.') }}% - ${{ number_format($detallePago->tasa_administracion, 0, ',', '.') }}</td>
+                                    <td>{{ number_format($detallePago->tasa_tipo2, 0, ',', '.') }}% - ${{ number_format($detallePago->tasa_bienestar, 0, ',', '.') }}</td>
+                                    <td>
+                                        <a href="{{ $urlDescarga }}" target="_blank">Ver factura aquí</a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
 
@@ -160,21 +167,36 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/abonos/nuevo" method="POST" enctype="multipart/form-data" class="px-4 py-2" id="form_nuevo_abono">
+                    <form action="/abonos/nuevo" method="POST" enctype="multipart/form-data" class="px-4 py-2"
+                        id="form_nuevo_abono">
                         @csrf
 
-                        <input type="hidden" name="InputPagoProveedorId" value="{{$pago->id}}">
-                        <div class="mb-3">
+                        <input type="hidden" name="InputPagoProveedorId" value="{{ $pago->id }}">
+
+                        <div class="col-md-12 mb-3">
                             <label for="inputAnioPago" class="form-label">Año de abono</label>
-                            <input type="number" class="form-control" name="inputAnioPago" id="inputAnioPago" placeholder="Ingresa el año de pago de abono">
+                            <select class="form-select" aria-label="Tipo de socio" name="inputAnioPago"
+                                id="inputAnioPago">
+                                <option value="" selected>Seleccione un año y tasa</option>
+                                @foreach ($tasas as $anio => $tasaPorAnio)
+                                    @php
+                                        $adminTasa = $tasaPorAnio->where('tipo', 1)->first();
+                                        $bienestarTasa = $tasaPorAnio->where('tipo', 2)->first();
+                                    @endphp
+                                    <option value="{{ $adminTasa->id }}">{{ $anio }} - ADM - {{ number_format($adminTasa->tasa, 0)  ?? '' }} % - BNS - {{ $bienestarTasa->tasa ?? '' }}</option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div class="mb-3">
                             <label for="inputImporte" class="form-label">Importe</label>
-                            <input type="number" class="form-control" name="inputImporte" id="inputImporte" placeholder="Ingresa valor de importe">
+                            <input type="number" class="form-control" name="inputImporte" id="inputImporte"
+                                placeholder="Ingresa valor de importe">
                         </div>
                         <div class="mb-3">
                             <label for="inputFactura" class="form-label">Factura</label>
-                            <input type="file" class="form-control" name="inputFactura" id="inputFactura" placeholder="Seleccionar factura">
+                            <input type="file" class="form-control" name="inputFactura" id="inputFactura"
+                                placeholder="Seleccionar factura">
                         </div>
                         <div class="modal-footer mt-4">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -188,83 +210,83 @@
     </div>
 
     @push('scripts')
-    <script>
-        new DataTable('#data-table-proveedores-pagos-detalle', {
-            responsive: true,
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            paging: false,
-            language: {
-                "sProcessing": "Procesando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "No se encontraron resultados",
-                "sEmptyTable": "Ningún dato disponible en esta tabla",
-                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-                "sSearch": "Buscar:",
-                "sInfoThousands": ",",
-                "sLoadingRecords": "Cargando...",
-                "oPaginate": {
-                    "sFirst": "Primero",
-                    "sLast": "Último",
-                    "sNext": "Siguiente",
-                    "sPrevious": "Anterior"
+        <script>
+            new DataTable('#data-table-proveedores-pagos-detalle', {
+                responsive: true,
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
                 },
-                "oAria": {
-                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-                },
-                "buttons": {
-                    "copy": "Copiar",
-                    "colvis": "Visibilidad"
-                }
-            },
-            info: false,
-            columnDefs: [{
-                targets: "_all",
-                sortable: false
-            }],
-            paging: true,
-        });
-
-
-        $(document).ready(function() {
-            $('#form_nuevo_abono').validate({
-                rules: {
-                    inputAnioPago: {
-                        required: true,
-                        digits: true
+                paging: false,
+                language: {
+                    "sProcessing": "Procesando...",
+                    "sLengthMenu": "Mostrar _MENU_ registros",
+                    "sZeroRecords": "No se encontraron resultados",
+                    "sEmptyTable": "Ningún dato disponible en esta tabla",
+                    "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                    "sSearch": "Buscar:",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst": "Primero",
+                        "sLast": "Último",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
                     },
-                    inputImporte: {
-                        required: true,
-                        digits: true
+                    "oAria": {
+                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
                     },
-                    inputFactura: {
-                        required: true,
+                    "buttons": {
+                        "copy": "Copiar",
+                        "colvis": "Visibilidad"
                     }
                 },
-                messages: {
-                    inputAnioPago: {
-                        required: "Por favor, ingresa el nombre",
-                        digits: "El número de nit debe contener solo dígitos"
-                    },
-                    inputImporte: {
-                        required: "Por favor, selecciona un tipo",
-                        digits: "El número de nit debe contener solo dígitos"
-                    },
-                    inputFactura: {
-                        required: "Por favor, ingresa el número de nit"
-
-                    }
-                },
-                submitHandler: function(form) {
-                    form.submit();
-                }
+                info: false,
+                columnDefs: [{
+                    targets: "_all",
+                    sortable: false
+                }],
+                paging: true,
             });
-        });
-    </script>
+
+
+            $(document).ready(function() {
+                $('#form_nuevo_abono').validate({
+                    rules: {
+                        inputAnioPago: {
+                            required: true,
+                            digits: true
+                        },
+                        inputImporte: {
+                            required: true,
+                            digits: true
+                        },
+                        inputFactura: {
+                            required: true,
+                        }
+                    },
+                    messages: {
+                        inputAnioPago: {
+                            required: "Por favor, ingresa el nombre",
+                            digits: "El número de nit debe contener solo dígitos"
+                        },
+                        inputImporte: {
+                            required: "Por favor, selecciona un tipo",
+                            digits: "El número de nit debe contener solo dígitos"
+                        },
+                        inputFactura: {
+                            required: "Por favor, ingresa el número de nit"
+
+                        }
+                    },
+                    submitHandler: function(form) {
+                        form.submit();
+                    }
+                });
+            });
+        </script>
     @endpush
 
 </x-app-layout>

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\pagoProveedores\AbonoController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SocioController;
+use App\Http\Controllers\repertorioSocios\SocioController;
 use App\Http\Controllers\pagoProveedores\ProveedorController;
 use App\Http\Controllers\pagoProveedores\PagoController;
 use Illuminate\Support\Facades\Route;

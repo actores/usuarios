@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\repertorioSocios;
 
+
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Socio;
 use App\Models\Produccion;
@@ -12,14 +14,14 @@ class SocioController extends Controller
     public function listarTotalSocios()
     {
         $socios = Socio::all();
-        return view('areas.socios.repertorio')->with('socios', $socios);
+        return view('procesos.repertorio.repertorio')->with('socios', $socios);
     }
 
     public function detalleSocio($id)
     {
         $socio = Socio::find($id);
         $producciones = Produccion::where('socio_id', $id)->get();
-        return view('areas.socios.detalleSocio')->with('socio', $socio)->with('producciones', $producciones);
+        return view('procesos.repertorio.detalleSocio')->with('socio', $socio)->with('producciones', $producciones);
     }
 
     public function nuevoSocio(Request $request)
