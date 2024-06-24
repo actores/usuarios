@@ -110,7 +110,7 @@
                                         </div>
                                     </td>
                                     <td>{{ $proveedor->nit }}</td>
-                                    <td>{{ $proveedor->tipo_id }}</td>
+                                    <td>{{ $proveedor->tipo_proveedor }}</td>
                                     <td>
                                         <a href="/proveedores/detalle/{{$proveedor->id}}">Detalle</a>
                                     </td>

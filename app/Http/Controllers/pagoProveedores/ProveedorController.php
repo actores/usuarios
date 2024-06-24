@@ -13,7 +13,13 @@ class ProveedorController extends Controller
 {
     public function listarProveedores(Request $request)
     {
-        $proveedores = Proveedor::all();
+        // $proveedores = Proveedor::all();
+        $proveedores = DB::table('proveedores')
+            ->join('tipos_proveedor','proveedores.tipo_id', '=','tipos_proveedor.id')
+            ->select('proveedores.*', 'tipos_proveedor.nombre as tipo_proveedor')
+            ->get();
+
+        // dd($proveedores);
         $tiposProveedor = TipoProveedor::all();
         return view('procesos.pagoUsuarios.proveedores')->with('proveedores', $proveedores)->with('tiposProveedor', $tiposProveedor);
     }
@@ -41,8 +47,13 @@ class ProveedorController extends Controller
 
     public function detalleProveedor($id)
     {
-        $proveedor = Proveedor::find($id);
-        // $pagos = PagoProveedor::where('proveedor_id', $id)->get();
+        $proveedor = DB::table('proveedores')
+            ->join('tipos_proveedor','proveedores.tipo_id', '=','tipos_proveedor.id')
+            ->select('proveedores.*', 'tipos_proveedor.nombre as tipo_proveedor')
+            ->where('proveedores.id', $id) 
+            ->first();
+
+        // dd($proveedor);
 
 
         $pagos = PagoProveedor::with('abonos')

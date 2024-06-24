@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\repertorioSocios\SocioController;
 use App\Http\Controllers\pagoProveedores\ProveedorController;
 use App\Http\Controllers\pagoProveedores\PagoController;
+use App\Http\Controllers\pagoProveedores\DistribucionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pagos/detalle/abonos/{proveedorId}/{pagoId}', [AbonoController::class, 'detalleAbono']);
     Route::post('/abonos/nuevo', [AbonoController::class, 'nuevoAbono']);
     
+    Route::get('/distribucion/recuento', [DistribucionController::class, 'recuentoPagosDistribucion']);
 
 });
 

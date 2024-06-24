@@ -100,7 +100,7 @@
                         </span>
                         <span class="d-flex flex-column ml-5">
                             <span class="mb-0">Tipo</span>
-                            <span>{{ $proveedor->tipo_id }}</span>
+                            <span>{{ $proveedor->tipo_proveedor }}</span>
                         </span>
                         <span class="d-flex flex-column ml-5">
                             <span class="mb-0">Dirección</span>
@@ -114,6 +114,7 @@
                     </div>
                 </div>
             </div>
+
 
             <div class="row mt-5">
                 <div class="col-md-12">
@@ -182,14 +183,7 @@
                             <label for="inputFactura" class="form-label">Factura</label>
                             <input type="file" class="form-control" name="inputFactura" id="inputFactura" placeholder="Seleccionar factura">
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="inputEstadoPago" class="form-label">Estado Pago</label>
-                            <select class="form-select" aria-label="Estado de pago" name="inputEstadoPago" id="inputEstadoPago">
-                                <option value="Completo">Completo</option>
-                                <option value="En proceso">En proceso</option>
-                                <option value="Pendiente" selected>Pendiente</option>
-                            </select>
-                        </div>
+                      
                         <div class="modal-footer mt-4">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             <button type="submit" class="btn btn-primary">Guardar</button>

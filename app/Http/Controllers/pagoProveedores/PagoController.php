@@ -14,8 +14,7 @@ class PagoController extends Controller
         $request->validate([
             'inputAnioExplotacion' => 'required|numeric',
             'inputImporte' => 'required|numeric',
-            'inputFactura' => 'required|mimes:pdf|max:2048',
-            'inputEstadoPago' => 'required|string'
+            'inputFactura' => 'required|mimes:pdf|max:2048'
         ]);
 
         $factura = $request->file("inputFactura");
@@ -24,12 +23,15 @@ class PagoController extends Controller
         
         $factura->storeAs('public/facturas', $faturaNombre);
 
+
+        
+
         $pago = new PagoProveedor();
         $pago->proveedor_id = $request->input("InputProveedorId");
         $pago->anio_explotacion = $request->input("inputAnioExplotacion");
         $pago->importe = $request->input("inputImporte");
         $pago->factura = $faturaNombre;
-        $pago->estadoPago = $request->input("inputEstadoPago");
+        $pago->estadoPago = 'Pendiente';
         $pago->save();
 
         return redirect()->back()->with('success', 'Pago registrado correctamente.');

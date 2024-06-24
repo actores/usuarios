@@ -50,16 +50,63 @@ class AbonoController extends Controller
         $abono->tasa_administracion = $tasaAbonoPagoAdministracion;
         $abono->tasa_bienestar = $tasaAbonoPagoBienestar;
         $abono->factura = $faturaNombre;
-        $abono->save();
+
+
+        $pagosConAbonos = DB::table('pagos_proveedores as pp')
+            ->leftJoin('abonos as a', 'a.pagoProveedor_id', '=', 'pp.id')
+            ->select(
+                'pp.id as PagoID',
+                'pp.importe as Deuda',
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado'),
+                DB::raw('CASE 
+                    WHEN pp.importe = COALESCE(SUM(a.importe), 0) THEN 1 
+                    WHEN pp.importe < COALESCE(SUM(a.importe), 0) THEN 0 
+                    WHEN pp.importe > COALESCE(SUM(a.importe), 0) THEN 2 
+                 END as comparacion')
+            )
+            ->where('pp.id', $request->input('InputPagoProveedorId'))
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+        $recuentoDeduda = ($pagosConAbonos->Deuda -  $pagosConAbonos->Abonado) - $request->input('inputImporte');
+
+        if ($recuentoDeduda < 0) {
+            return redirect()->back()->with('error', 'El abono excede la deuda');
+        } else if ($recuentoDeduda == 0) {
+            $registrarAbono = 0;
+            $abono->save();
+            PagoProveedor::where('id', $request->input('InputPagoProveedorId'))->update(['estadoPago' => 'Completo']);
+            return redirect()->back()->with('success', 'Abono registrado correctamente.')->with('registrarAbono', $registrarAbono);
+        } else {
+            $abono->save();
+            return redirect()->back()->with('success', 'Abono registrado correctamente.');
+        }
+
+
+
 
         return redirect()->back()->with('success', 'Abono registrado correctamente.');
     }
 
     public function detalleAbono($idProveedor, $idPago)
     {
+        $registrarAbono = 1;
 
         $proveedor = Proveedor::find($idProveedor);
+
         $pago = PagoProveedor::find($idPago);
+
+        $recuentoAbonos = DB::table('pagos_proveedores as pp')
+            ->leftJoin('abonos as a', 'a.pagoProveedor_id', '=', 'pp.id')
+            ->select(
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
+            )
+            ->where('pp.id', $idPago)
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+        $totalPagado = $recuentoAbonos->Abonado;
+
 
         $tasas = TasaProveedor::select('id', 'anio', 'tipo', 'tasa')
             ->orderBy('anio')
@@ -93,11 +140,36 @@ class AbonoController extends Controller
             ->get();
 
 
+        $pagosConAbonos = DB::table('pagos_proveedores as pp')
+            ->leftJoin('abonos as a', 'a.pagoProveedor_id', '=', 'pp.id')
+            ->select(
+                'pp.id as PagoID',
+                'pp.importe as Deuda',
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado'),
+                DB::raw('CASE 
+                    WHEN pp.importe = COALESCE(SUM(a.importe), 0) THEN 1 
+                    WHEN pp.importe < COALESCE(SUM(a.importe), 0) THEN 0 
+                    WHEN pp.importe > COALESCE(SUM(a.importe), 0) THEN 2 
+                 END as comparacion')
+            )
+            ->where('pp.id', $idPago)
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+
+        $recuentoDeduda = ($pagosConAbonos->Deuda -  $pagosConAbonos->Abonado);
+
+        if($recuentoDeduda == 0){
+            $registrarAbono = 0;
+        }
+
 
         return view('procesos.pagoUsuarios.detalleProveedorPago')
             ->with('proveedor', $proveedor)
             ->with('pago', $pago)
             ->with('detallesPago', $detallesPago)
-            ->with('tasas', $tasas);
+            ->with('tasas', $tasas)
+            ->with('totalPagado', $totalPagado)
+            ->with('registrarAbono', $registrarAbono);
     }
 }

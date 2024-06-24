@@ -22,6 +22,14 @@
                             </div>
                         </div>
                     </a>
+                    <a href="/distribucion/recuento">
+                        <div class="card px-4 py-2">
+                            <div class="card-body d-flex gap-2 justify-between align-items-center">
+                                <i class="fa-solid fa-folder fs-1"></i>
+                                <span class="title_card">Distribuciones</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>

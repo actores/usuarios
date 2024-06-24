@@ -88,8 +88,11 @@
                 </nav>
 
                 <div class="">
-                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">Nuevo
-                        abono</div>
+                    @if ($registrarAbono == 1)
+                        <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">Nuevo
+                            abono</div>
+                    @endif
+
                     <div class="btn btn-secondary btn-sm">Exportar</div>
                 </div>
             </div>
@@ -101,26 +104,25 @@
                             <img src="https://cdn-icons-png.flaticon.com/512/2202/2202942.png" alt=""
                                 class="avatar_socio">
                             <div class="d-flex flex-column justify-content-center">
-                                <h4 class="mb-0">{{ $proveedor->nombre }}</h4>
-                                <span>{{ $proveedor->nit }}</span>
+                                <h4 class="mb-0">Año de explotación {{ $pago->anio_explotacion }}</h4>
+                                <span
+                                    class="fw-bold text-primary fs-2">${{ number_format($pago->importe, 0, ',', '.') }}</span>
                             </div>
                         </span>
                         <span class="d-flex flex-column ml-5">
-                            <span class="mb-0">Tipo</span>
-                            <span>{{ $proveedor->tipo_id }}</span>
+                            <span class="mb-0">Pagado</span>
+                            <span class="text-success fw-bold">${{ number_format($totalPagado, 0, ',', '.') }}</span>
                         </span>
                         <span class="d-flex flex-column ml-5">
-                            <span class="mb-0">Dirección</span>
-                            <span>{{ $proveedor->direccion }}</span>
-                        </span>
-                        <span class="d-flex flex-column ml-5">
-                            <span class="mb-0">Ciudad</span>
-                            <span>{{ $proveedor->ciudad }}</span>
+                            <span class="mb-0">Pendiente</span>
+                            <span
+                                class="text-danger fw-bold">${{ number_format($pago->importe - $totalPagado, 0, ',', '.') }}</span>
                         </span>
 
                     </div>
                 </div>
             </div>
+
 
             <div class="row mt-5">
                 <div class="col-md-12">
@@ -144,8 +146,10 @@
                                 <tr>
                                     <td>{{ $detallePago->anio }}</td>
                                     <td>${{ number_format($detallePago->importe, 0, ',', '.') }}</td>
-                                    <td>{{ number_format($detallePago->tasa_tipo1, 0, ',', '.') }}% - ${{ number_format($detallePago->tasa_administracion, 0, ',', '.') }}</td>
-                                    <td>{{ number_format($detallePago->tasa_tipo2, 0, ',', '.') }}% - ${{ number_format($detallePago->tasa_bienestar, 0, ',', '.') }}</td>
+                                    <td>{{ number_format($detallePago->tasa_tipo1, 0, ',', '.') }}% -
+                                        ${{ number_format($detallePago->tasa_administracion, 0, ',', '.') }}</td>
+                                    <td>{{ number_format($detallePago->tasa_tipo2, 0, ',', '.') }}% -
+                                        ${{ number_format($detallePago->tasa_bienestar, 0, ',', '.') }}</td>
                                     <td>
                                         <a href="{{ $urlDescarga }}" target="_blank">Ver factura aquí</a>
                                     </td>
@@ -183,7 +187,9 @@
                                         $adminTasa = $tasaPorAnio->where('tipo', 1)->first();
                                         $bienestarTasa = $tasaPorAnio->where('tipo', 2)->first();
                                     @endphp
-                                    <option value="{{ $adminTasa->id }}">{{ $anio }} - ADM - {{ number_format($adminTasa->tasa, 0)  ?? '' }} % - BNS - {{ $bienestarTasa->tasa ?? '' }}</option>
+                                    <option value="{{ $adminTasa->id }}">{{ $anio }} - ADM -
+                                        {{ number_format($adminTasa->tasa, 0) ?? '' }} % - BNS -
+                                        {{ $bienestarTasa->tasa ?? '' }}</option>
                                 @endforeach
                             </select>
                         </div>
