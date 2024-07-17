@@ -14,12 +14,10 @@ return new class extends Migration
         Schema::create('producciones', function (Blueprint $table) {
             $table->id();
             $table->string('tituloObra');
-            $table->string('personaje');
             $table->string('tipoProduccion');
             $table->string('pais');
             $table->year('anio');
             $table->string('director');
-            $table->foreignId('socio_id')->constrained('socios');
             $table->timestamps();
         });
     }

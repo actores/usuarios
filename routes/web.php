@@ -6,6 +6,7 @@ use App\Http\Controllers\repertorioSocios\SocioController;
 use App\Http\Controllers\pagoProveedores\ProveedorController;
 use App\Http\Controllers\pagoProveedores\PagoController;
 use App\Http\Controllers\pagoProveedores\DistribucionController;
+use App\Http\Controllers\RepertorioSocios\ProduccionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +46,11 @@ Route::middleware('auth')->group(function () {
     // Rutas Repertorio
     Route::get('/menu/socios/repertorio', [SocioController::class, 'listarTotalSocios']);
     Route::get('/menu/socios/repertorio/socio/{id}', [SocioController::class, 'detalleSocio']);
+    Route::get('/agregarProduccion/{id}', [ProduccionController::class, 'vistaAgregarProduccion']);
+    Route::get('/listarProducciones',[ProduccionController::class, 'listarProducciones'])->name('listarProducciones');
+    Route::post('/agregarProducciones', [ProduccionController::class, 'agregarProducciones']);
+
+    
 
     // Rutas Pago Proveedores
     Route::get('/proveedores', [ProveedorController::class, 'listarProveedores']);

@@ -42,6 +42,16 @@
 
     <section class="section_data">
         <div class="container">
+
+            @if (session('mensaje'))
+                <script>
+                    Swal.fire({
+                        title: "Operación exitosa",
+                        text: "{{ session('mensaje') }}",
+                        icon: "success"
+                    });
+                </script>
+            @endif
             <!-- Recorrido - Menú -->
             <div class="d-flex justify-content-between align-items-center">
                 <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
@@ -55,7 +65,8 @@
                 </nav>
 
                 <div class="">
-                    <div class="btn btn-secondary btn-sm">Buscar producción</div>
+                    <a href="/agregarProduccion/{{ $socio->id }}" class="btn btn-secondary btn-sm">Agregar
+                        producción</a>
                     <div class="btn btn-secondary btn-sm">Exportar repertorio</div>
                 </div>
             </div>
@@ -114,7 +125,9 @@
                                     <td>{{ $produccion->anio }}</td>
                                     <td>{{ $produccion->director }}</td>
                                     <td>
-                                        <a href="">Editar</a>
+                                        <a href="#" id="btn_editar_personaje_produccion_repertorio"
+                                            data-id="{{ $produccion->id }}"
+                                            data-personaje="{{ $produccion->personaje }}">Editar</a>
                                         <a href="">Eliminar</a>
                                     </td>
                                 </tr>
@@ -167,6 +180,19 @@
                 }],
                 paging: true,
             });
+
+
+            $('#btn_editar_personaje_produccion_repertorio').click(function() {
+                event.preventDefault();
+
+                // Capturar los valores de data-id y data-personaje
+                let produccionId = $(this).data('id');
+                let personaje = $(this).data('personaje');
+
+                // Puedes utilizar los valores capturados como necesites
+                console.log('ID de Producción:', produccionId);
+                console.log('Personaje:', personaje);
+            })
         </script>
     @endpush
 

@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Socio;
 use App\Models\Produccion;
+use App\Models\SociosProduccion;
+
+use function PHPSTORM_META\type;
 
 class SocioController extends Controller
 {
@@ -20,7 +23,20 @@ class SocioController extends Controller
     public function detalleSocio($id)
     {
         $socio = Socio::find($id);
-        $producciones = Produccion::where('socio_id', $id)->get();
+        $producciones = SociosProduccion::select(
+            'socios_producciones.id',
+            'producciones.tituloObra',
+            'socios_producciones.personaje',
+            'producciones.tipoProduccion',
+            'producciones.pais',
+            'producciones.anio',
+            'producciones.director'
+        )
+            ->join('socios', 'socios_producciones.socio_id', '=', 'socios.id')
+            ->join('producciones', 'socios_producciones.produccion_id', '=', 'producciones.id')
+            ->where('socios_producciones.socio_id', $id)
+            ->get();
+
         return view('procesos.repertorio.detalleSocio')->with('socio', $socio)->with('producciones', $producciones);
     }
 
@@ -60,14 +76,5 @@ class SocioController extends Controller
     }
 
 
-    // public function buscarIdentificacion(Request $request){
-    //     $data_buscar = $request->data_buscar;
-    //     $socios = Socio::where('identificacion', 'like', '%'.$data_buscar.'%')->get();
-    //     // $socios->appends(['data_buscar' => $data_buscar]);
-
-    //     $producciones = Produccion::where('socio_id', $id)->get();
-
-    //     return view('areas.socios.repertorio')->with('socios', $socios)->with('producciones', $producciones);
-    // }
 
 }
