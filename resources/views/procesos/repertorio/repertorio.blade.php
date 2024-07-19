@@ -81,7 +81,7 @@
                 </nav>
                 <div class="">
                     <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalSocio">Nuevo socio</div>
-                    <div class="btn btn-secondary btn-sm">Exportar</div>
+                    <a href="/exportarRepertorio" class="btn btn-secondary btn-sm">Exportar</a>
                 </div>
             </div>
             <div class="row">

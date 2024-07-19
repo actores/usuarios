@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/agregarProduccion/{id}', [ProduccionController::class, 'vistaAgregarProduccion']);
     Route::get('/listarProducciones',[ProduccionController::class, 'listarProducciones'])->name('listarProducciones');
     Route::post('/agregarProducciones', [ProduccionController::class, 'agregarProducciones']);
+    Route::post('/editarPersonaje', [ProduccionController::class, 'editarPersonajeProduccion']);
+    Route::get('/eliminarProduccion/{id}', [ProduccionController::class, 'eliminarProduccion']);
+    Route::get('/exportarRepertorio', [ProduccionController::class, 'exportarRepertorio']);
 
     
 

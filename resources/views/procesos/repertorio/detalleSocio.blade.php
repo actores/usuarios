@@ -125,10 +125,15 @@
                                     <td>{{ $produccion->anio }}</td>
                                     <td>{{ $produccion->director }}</td>
                                     <td>
-                                        <a href="#" id="btn_editar_personaje_produccion_repertorio"
+                                        <a href="#" class="btn_editar_personaje_produccion_repertorio"
                                             data-id="{{ $produccion->id }}"
-                                            data-personaje="{{ $produccion->personaje }}">Editar</a>
-                                        <a href="">Eliminar</a>
+                                            data-personaje="{{ $produccion->personaje }}"
+                                            data-titulo="{{ $produccion->tituloObra }}">Editar</a>
+
+                                        <a href="#" class="btn_eliminar_produccion_repertorio"
+                                            data-id="{{ $produccion->id }}"
+                                            data-personaje="{{ $produccion->personaje }}"
+                                            data-titulo="{{ $produccion->tituloObra }}">Eliminar</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -138,6 +143,71 @@
             </div>
         </div>
     </section>
+
+
+    <!-- Modal Agregar Personaje-->
+    <div class="modal fade" id="modaEditarPersonaje" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="d-flex flex-column justify-content-center align-items-center">
+                        <div class="modal-title fw-bold" id="title_modal_add_productio"></div>
+                        <label for="" class="text-center">Ingresa el personaje del socio en esta
+                            producción</label>
+                    </div>
+                </div>
+                <form action="/editarPersonaje" method="POST" id="actualizar_personaje_produccion">
+                    @csrf
+                    <div class="modal-body text-center">
+                        <input type="hidden" name="socio_id" id="socio_id" value="{{ $socio->id }}">
+                        <input type="hidden" name="produccion_id" id="produccion_id">
+                        <input type="text" class="form-control" id="personaje_produccion" name="personaje_produccion"
+                            placeholder="Nombre del personaje">
+                        <div id="error-message" style="color: red;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnValidate">Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Agregar Personaje-->
+    <div class="modal fade" id="modalEliminarProduccionRepertorio" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header flex-column">
+                    <div class="modal-title fw-bold w-100 text-center">Confirmar y Eliminar</div>
+
+                </div>
+
+                <div class="modal-body">
+                    <div class="d-flex flex-column justify-content-center align-items-center">
+                        <p id="title_modal_add_production_delete" class="fw-bold text-secondary"></p>
+                        <p id="personaje_modal_add_production_delete" class="fw-bold text-secondary"></p>
+                    </div>
+
+
+
+                    <input type="hidden" name="socio_id" id="socio_id" value="{{ $socio->id }}">
+
+                    <div class="modal-footer  d-flex  justify-content-center align-items-center">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a href="" class="btn btn-secondary" id="btnDeleteProduccionRepertorio">Eliminar</a>
+                    </div>
+                    </form>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
         <script>
@@ -181,18 +251,69 @@
                 paging: true,
             });
 
+            $('.btn_editar_personaje_produccion_repertorio').each(function() {
+                $(this).click(function() {
+                    event.preventDefault();
 
-            $('#btn_editar_personaje_produccion_repertorio').click(function() {
-                event.preventDefault();
+                    // Capturar los valores de data-id y data-personaje
+                    let produccionId = $(this).data('id');
+                    let personaje = $(this).data('personaje');
+                    let titulo = $(this).data('titulo');
 
-                // Capturar los valores de data-id y data-personaje
-                let produccionId = $(this).data('id');
-                let personaje = $(this).data('personaje');
 
-                // Puedes utilizar los valores capturados como necesites
-                console.log('ID de Producción:', produccionId);
-                console.log('Personaje:', personaje);
-            })
+                    $('#title_modal_add_productio').html(titulo)
+
+                    $('#personaje_produccion').val(personaje)
+                    $('#produccion_id').val(produccionId)
+                    $('#modaEditarPersonaje').modal('show');
+
+                    // personaje_produccion
+
+                })
+            });
+
+
+            $('.btn_eliminar_produccion_repertorio').each(function() {
+                $(this).click(function() {
+                    event.preventDefault();
+
+                    // Capturar los valores de data-id y data-personaje
+                    let produccionId = $(this).data('id');
+                    let personaje = $(this).data('personaje');
+                    let titulo = $(this).data('titulo');
+
+
+                    $('#title_modal_add_production_delete').html(titulo)
+                    $('#personaje_modal_add_production_delete').html(personaje)
+
+                    let ruta = `/eliminarProduccion/${produccionId}`
+
+                    $('#btnDeleteProduccionRepertorio').attr('href', ruta);
+
+                    $('#modalEliminarProduccionRepertorio').modal('show');
+                })
+            });
+
+            $("#actualizar_personaje_produccion").validate({
+                rules: {
+                    personaje_produccion: {
+                        required: true,
+                        minlength: 3
+                    }
+                },
+                messages: {
+                    personaje_produccion: {
+                        required: "Por favor, ingrese el nombre del personaje.",
+                        minlength: "El nombre del personaje debe tener al menos 3 caracteres."
+                    }
+                },
+                errorPlacement: function(error, element) {
+                    error.appendTo("#error-message");
+                },
+                submitHandler: function(form) {
+                    form.submit();
+                }
+            });
         </script>
     @endpush
 
