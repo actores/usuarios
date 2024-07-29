@@ -48,10 +48,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/menu/socios/repertorio/socio/{id}', [SocioController::class, 'detalleSocio']);
     Route::get('/agregarProduccion/{id}', [ProduccionController::class, 'vistaAgregarProduccion']);
     Route::get('/listarProducciones',[ProduccionController::class, 'listarProducciones'])->name('listarProducciones');
-    Route::post('/agregarProducciones', [ProduccionController::class, 'agregarProducciones']);
+    Route::post('/agregarProduccionesRepertorio', [ProduccionController::class, 'agregarProduccionesRepertorio']);
     Route::post('/editarPersonaje', [ProduccionController::class, 'editarPersonajeProduccion']);
     Route::get('/eliminarProduccion/{id}', [ProduccionController::class, 'eliminarProduccion']);
     Route::get('/exportarRepertorio', [ProduccionController::class, 'exportarRepertorio']);
+    Route::get('/exportarRepertorioIndividual/{id}', [ProduccionController::class, 'exportarRepertorioIndividual']);
+    Route::get('/producciones', [ProduccionController::class, 'indexListarProducciones'])->name('producciones');
+    Route::get('/nuevaproduccion', [ProduccionController::class, 'nuevaProduccion']);
+
+    Route::post('/agregarProduccion', [ProduccionController::class, 'agregarProducciones']);
+    Route::get('/exportarProducciones', [ProduccionController::class, 'exportarProducciones']);
 
     
 

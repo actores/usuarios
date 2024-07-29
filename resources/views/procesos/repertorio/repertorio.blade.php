@@ -53,6 +53,7 @@
 
             @if(session('success'))
             <script>
+                alert();
                 Swal.fire({
                     icon: 'success',
                     title: "{{ session('success') }}",
@@ -81,7 +82,7 @@
                 </nav>
                 <div class="">
                     <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalSocio">Nuevo socio</div>
-                    <a href="/exportarRepertorio" class="btn btn-secondary btn-sm">Exportar</a>
+                    <a href="/exportarRepertorio" class="btn btn-secondary btn-sm">Exportar repertorio general</a>
                 </div>
             </div>
             <div class="row">

@@ -14,6 +14,14 @@
 
             <div class="row">
                 <div class="areas">
+                    <a href="#">
+                        <div class="card px-4 py-2">
+                            <div class="card-body d-flex gap-2 justify-between align-items-center">
+                                <i class="fa-solid fa-folder fs-1"></i>
+                                <span class="title_card">Datos Básicos</span>
+                            </div>
+                        </div>
+                    </a>
                     <a href="{{ url('/menu/socios/repertorio') }}">
                         <div class="card px-4 py-2">
                             <div class="card-body d-flex gap-2 justify-between align-items-center">
@@ -22,7 +30,7 @@
                             </div>
                         </div>
                     </a>
-                    <a href="#">
+                    <a href="/producciones">
                         <div class="card px-4 py-2">
                             <div class="card-body d-flex gap-2 justify-between align-items-center">
                                 <i class="fa-solid fa-folder fs-1"></i>

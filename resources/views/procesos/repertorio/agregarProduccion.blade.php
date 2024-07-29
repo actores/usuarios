@@ -194,7 +194,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <form action="/agregarProducciones" method="POST">
+                    <form action="/agregarProduccionesRepertorio" method="POST">
                         @csrf
                         <input type="hidden" name="inputSocio" id="inputSocio" value="{{ $socio->id }}">
                         <input type="hidden" name="inputNuevasProducciones" id="inputNuevasProducciones">

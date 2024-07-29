@@ -67,7 +67,7 @@
                 <div class="">
                     <a href="/agregarProduccion/{{ $socio->id }}" class="btn btn-secondary btn-sm">Agregar
                         producción</a>
-                    <div class="btn btn-secondary btn-sm">Exportar repertorio</div>
+                    <a href="/exportarRepertorioIndividual/{{$socio->id}}" class="btn btn-secondary btn-sm">Exportar repertorio</a>
                 </div>
             </div>
             <div class="row mt-5">

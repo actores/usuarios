@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\RepertorioSocios;
 
+use App\Exports\ProduccionesExport;
 use App\Exports\RepertorioExport;
+use App\Exports\RepetorioIndividualExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\repertorioSocios\SocioController;
 use App\Models\Produccion;
@@ -19,6 +21,12 @@ class ProduccionController extends Controller
         return $producciones;
     }
 
+    public function indexListarProducciones()
+    {
+        $producciones = Produccion::all();
+        return view('procesos.repertorio.producciones')->with('producciones', $producciones);
+    }
+
     public function vistaAgregarProduccion($id)
     {
         $socio = Socio::find($id);
@@ -27,7 +35,7 @@ class ProduccionController extends Controller
         return view('procesos.repertorio.agregarProduccion')->with('socio', $socio)->with('producciones', $producciones);
     }
 
-    public function agregarProducciones(Request $request)
+    public function agregarProduccionesRepertorio(Request $request)
     {
         $socioId = $request->inputSocio;
         $produccionesNuevas = json_decode($request->inputNuevasProducciones);
@@ -77,13 +85,86 @@ class ProduccionController extends Controller
             // Eliminar el usuario
             $participacion->delete();
             return redirect()->action([SocioController::class, 'detalleSocio'], ['id' => $participacion->socio_id])
-            ->with('mensaje', 'Participación elimina correctamente.');
+                ->with('mensaje', 'Participación elimina correctamente.');
         } else {
             return redirect()->back()->with('error', 'Participación no encontrado');
         }
     }
 
-    public function exportarRepertorio(){
-        return Excel::download(new RepertorioExport,'Repertorio.xlsx');
+    public function exportarRepertorio()
+    {
+        return Excel::download(new RepertorioExport, 'Repertorio.xlsx');
+    }
+
+    public function exportarRepertorioIndividual($id)
+    {
+        return Excel::download(new RepetorioIndividualExport($id), 'RepertorioIndividual.xlsx');
+    }
+
+
+
+    public function agregarProducciones(Request $request)
+    {
+
+        if ($request->operacion == 1) {
+
+            // Validar los datos del formulario
+            $validatedData = $request->validate([
+                'inputTituloObra' => 'required|string|max:255',
+                'inputTipoProduccion' => 'required|string|max:255',
+                'inputPais' => 'required',
+                'inputAnio' => 'required|digits:4', // Se espera un año de 4 dígitos
+                'inputDirector' => 'required|string|max:255',
+            ]);
+
+            // Crear una nueva instancia del modelo Produccion
+            $produccion = new Produccion();
+
+            // Asignar los valores desde el formulario a la nueva instancia
+            $produccion->tituloObra = $validatedData['inputTituloObra'];
+            $produccion->tipoProduccion = $validatedData['inputTipoProduccion'];
+            $produccion->pais = $validatedData['inputPais'];
+            $produccion->anio = $validatedData['inputAnio'];
+            $produccion->director = $validatedData['inputDirector'];
+
+            // Guardar la producción en la base de datos
+            $produccion->save();
+            $producciones = Produccion::all();
+
+            return redirect()->route('producciones')
+                ->with('success', 'Obra registrada correctamente.');
+        } else if ($request->operacion == 2) {
+
+            // Validar los datos del formulario
+            $validatedData = $request->validate([
+                'inputTituloObra' => 'required|string|max:255',
+                'inputTipoProduccion' => 'required|string|max:255',
+                'inputPais' => 'required',
+                'inputAnio' => 'required|digits:4', // Se espera un año de 4 dígitos
+                'inputDirector' => 'required|string|max:255',
+            ]);
+
+            // Crear una nueva instancia del modelo Produccion
+            $produccion = Produccion::find($request->inputProduccionId);
+
+            // Asignar los valores desde el formulario a la nueva instancia
+            $produccion->tituloObra = $validatedData['inputTituloObra'];
+            $produccion->tipoProduccion = $validatedData['inputTipoProduccion'];
+            $produccion->pais = $validatedData['inputPais'];
+            $produccion->anio = $validatedData['inputAnio'];
+            $produccion->director = $validatedData['inputDirector'];
+
+            // Guardar la producción en la base de datos
+            $produccion->save();
+            $producciones = Produccion::all();
+
+            return redirect()->route('producciones')
+                ->with('success', 'Obra actualizada correctamente.');
+        }
+    }
+
+    public function exportarProducciones()
+    {
+        return Excel::download(new ProduccionesExport(), 'Producciones.xlsx');
     }
 }
