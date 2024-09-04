@@ -1,11 +1,11 @@
 <x-app-layout>
     <style>
         .avatar_socio {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            border-radius: 20%;
             object-fit: cover;
-            filter: grayscale(100%);
+            background: #c4c4c4;
         }
 
 
@@ -46,6 +46,8 @@
             color: #ff000096;
 
         }
+
+    
     </style>
 
     <section class="section_data">
@@ -88,7 +90,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <table class="" id="data-table-socios-proveedores">
+                    <table class="bg-white table" id="data-table-socios-proveedores">
                         <thead>
                             <tr>
                                 <th scope="col">PROVEEDOR</th>
@@ -100,10 +102,10 @@
                         <tbody>
                             @foreach ($proveedores as $proveedor)
                                 <tr>
-                                    <td scope="row">
+                                    <td>
                                         <div class="d-flex gap-3 justify-content-start align-items-center">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/2202/2202942.png"
-                                                alt="" class="avatar_socio">
+                                            <span src=""
+                                                alt="" class="avatar_socio"></span>
                                             <span class="d-flex flex-column">
                                                 {{ $proveedor->nombre }}
                                             </span>

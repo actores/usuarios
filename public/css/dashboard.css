@@ -18,12 +18,8 @@
 }
 
 @media (max-width: 1200px) {
-    .areas{
-        flex-direction: column;
-    }
-    .areas a {
-        width: 100%;
-    }
+   
+    
   }
 
 .fa-folder {
