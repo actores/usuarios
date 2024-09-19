@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/nuevosocio', [SocioController::class, 'nuevoSocio']);
     Route::match(['get', 'post'], '/menu/socios/repertorio/buscar', [SocioController::class, 'buscarIdentificacion']);
 
+    
     // Rutas Repertorio
     Route::get('/menu/socios/repertorio', [SocioController::class, 'listarTotalSocios']);
     Route::get('/menu/socios/repertorio/socio/{id}', [SocioController::class, 'detalleSocio']);

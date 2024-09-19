@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call(SociosSeeder::class);
-        $this->call(ProduccionSeeder::class);
         $this->call(TiposProveedorSeeder::class);
         $this->call(ProveedoresSeeder::class);
         $this->call(PagosProveedorSeeder::class);

@@ -44,6 +44,10 @@
         .card {
             border: solid 1px #D4D4D4 !important;
         }
+
+        .container{
+            max-width: 1400px !important;  
+        }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">

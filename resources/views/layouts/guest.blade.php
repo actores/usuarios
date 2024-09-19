@@ -18,7 +18,7 @@
 
     <style>
         .main {
-            background-image: url("{{ asset('assets/img/fondos/a.png') }}");
+            /* background-image: url("{{ asset('assets/img/fondos/a.png') }}"); */
             background-size: cover;
             background-repeat: no-repeat;
             display: flex;
@@ -76,8 +76,8 @@
                 <div class="w-100 h-100 d-flex justify-content-start align-items-center">
                     <div class="title_app">
                         <!-- <img src="{{ asset('assets/img/logos/wordmark.png') }}" alt=""> -->
-                        <span class="text-white fw-bold fs-1">ACTORES ID</span>
-                        <h6 class="text-white">Inicia sesión o crea una cuenta</h6>
+                        <span class="text-primary fw-bold fs-1">ACTORES ID</span>
+                        <h6 class="text-black-500">Iniciar sesión</h6>
                     </div>
                 </div>
             </div>
