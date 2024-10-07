@@ -39,16 +39,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/menu/socios', function () {
         return view('areas/socios/menu');
     });
+    // Rutas Administración
+    Route::get('/menu/administracion', function () {
+        return view('areas/administracion/menu');
+    });
 
     Route::post('/nuevosocio', [SocioController::class, 'nuevoSocio']);
     Route::match(['get', 'post'], '/menu/socios/repertorio/buscar', [SocioController::class, 'buscarIdentificacion']);
 
-    
+
     // Rutas Repertorio
     Route::get('/menu/socios/repertorio', [SocioController::class, 'listarTotalSocios']);
     Route::get('/menu/socios/repertorio/socio/{id}', [SocioController::class, 'detalleSocio']);
     Route::get('/agregarProduccion/{id}', [ProduccionController::class, 'vistaAgregarProduccion']);
-    Route::get('/listarProducciones',[ProduccionController::class, 'listarProducciones'])->name('listarProducciones');
+    Route::get('/listarProducciones', [ProduccionController::class, 'listarProducciones'])->name('listarProducciones');
     Route::post('/agregarProduccionesRepertorio', [ProduccionController::class, 'agregarProduccionesRepertorio']);
     Route::post('/editarPersonaje', [ProduccionController::class, 'editarPersonajeProduccion']);
     Route::get('/eliminarProduccion/{id}', [ProduccionController::class, 'eliminarProduccion']);
@@ -60,7 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/agregarProduccion', [ProduccionController::class, 'agregarProducciones']);
     Route::get('/exportarProducciones', [ProduccionController::class, 'exportarProducciones']);
 
-    
+
 
     // Rutas Pago Proveedores
     Route::get('/proveedores', [ProveedorController::class, 'listarProveedores']);
@@ -71,9 +75,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/pagos/detalle/abonos/{proveedorId}/{pagoId}', [AbonoController::class, 'detalleAbono']);
     Route::post('/abonos/nuevo', [AbonoController::class, 'nuevoAbono']);
-    
-    Route::get('/distribucion/recuento', [DistribucionController::class, 'recuentoPagosDistribucion']);
 
+    Route::get('/distribucion/recuento', [DistribucionController::class, 'recuentoPagosDistribucion']);
 });
 
 

@@ -74,21 +74,22 @@
             @endif
             <!-- Recorrido - Menú -->
             <div class=" d-flex justify-content-between align-items-center">
-                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);"
+                <nav style="--bs-breadcrumb-divider: url(data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'><path d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='#{$breadcrumb-divider-color}'/></svg>);"
                     aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Inicio</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/menu/distribucion') }}">Distribución</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+                        <li class="breadcrumb-item active" aria-current="page">Usuarios</li>
                     </ol>
                 </nav>
+                
                 <div class="">
-                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedor">Nuevo
-                        proveedor</div>
-                    <div class="btn btn-secondary btn-sm">Exportar</div>
+                    <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProveedor">Nuevo
+                        Usuario</div>
+                    <div class="btn btn-outline-secondary btn-sm">Exportar usuarios</div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mt-5">
                 <div class="col-md-12">
                     <table class="bg-white table" id="data-table-socios-proveedores">
                         <thead>
@@ -132,7 +133,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo proveedor</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo Usuario</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -146,7 +147,7 @@
                                 placeholder="Ingresa nombre completo">
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="inputTipoProveedor" class="form-label">Tipo de proveedor</label>
+                            <label for="inputTipoProveedor" class="form-label">Tipo de usuario</label>
                             <select class="form-select" aria-label="Tipo de socio" name="inputTipoProveedor"
                                 id="inputTipoProveedor">
                                 <option value="" selected>Seleccione un tipo</option>

@@ -125,8 +125,8 @@
                             <span class="d-block mt-4 parrafo_main">Administra pagos, asignaciones y liquidaciones de
                                 forma eficiente. Descubre todas las herramientas para distribuir fondos y gestionar
                                 participación de actores.</span>
-                            <span
-                                class="btn btn-sm btn-ligh mt-3 border fw-semibold text-secondary w-75 m-auto btn-ingresar-modulo">Ingresar</span>
+                            <a href="/menu/distribucion"
+                                class="btn btn-sm btn-ligh mt-3 border fw-semibold text-secondary w-75 m-auto btn-ingresar-modulo">Ingresar</a>
                         </div>
                     </div>
                     <div class="card">
@@ -195,8 +195,8 @@
                             </div>
                             <span class="d-block mt-4 parrafo_main">Optimiza la gestión de recursos y procesos internos.
                                 Descubre herramientas clave para una administración eficiente.</span>
-                            <span
-                                class="btn btn-sm btn-ligh mt-3 border fw-semibold text-secondary w-75 m-auto btn-ingresar-modulo">Ingresar</span>
+                            <a href="/menu/administracion"
+                                class="btn btn-sm btn-ligh mt-3 border fw-semibold text-secondary w-75 m-auto btn-ingresar-modulo">Ingresar</a>
                         </div>
                     </div>
                     <div class="card">
@@ -229,20 +229,22 @@
                         <div class="card-body">
                             <div class="d-flex gap-2 justify-content-start align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="#ED3E2A" stroke-width="2"
+                                    viewBox="0 0 24 24" fill="none" stroke="ED3E2A" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-broadcast">
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-ticket">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M18.364 19.364a9 9 0 1 0 -12.728 0" />
-                                    <path d="M15.536 16.536a5 5 0 1 0 -7.072 0" />
-                                    <path d="M12 13m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                    <path d="M15 5l0 2" />
+                                    <path d="M15 11l0 2" />
+                                    <path d="M15 17l0 2" />
+                                    <path
+                                        d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" />
                                 </svg>
 
 
-                                <span class="title_card fw-semibold">Visionado</span>
+                                <span class="title_card fw-semibold">TI</span>
                             </div>
-                            <span class="d-block mt-4 parrafo_main">Revisa y analiza contenido audiovisual con
-                                precisión. Descubre herramientas para una evaluación detallada.</span>
+                            <span class="d-block mt-4 parrafo_main">Monitorea y evalúa el rendimiento de tus sistemas
+                                de TI con precisión. Descubre soluciones para un análisis detallado y optimizado.</span>
                             <span
                                 class="btn btn-sm btn-ligh mt-3 border fw-semibold text-secondary w-75 m-auto btn-ingresar-modulo">Ingresar</span>
                         </div>
