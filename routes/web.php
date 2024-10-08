@@ -7,6 +7,7 @@ use App\Http\Controllers\pagoProveedores\ProveedorController;
 use App\Http\Controllers\pagoProveedores\PagoController;
 use App\Http\Controllers\pagoProveedores\DistribucionController;
 use App\Http\Controllers\RepertorioSocios\ProduccionController;
+use App\Http\Controllers\Ingreso\IngresoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -66,17 +67,21 @@ Route::middleware('auth')->group(function () {
 
 
 
+
     // Rutas Pago Proveedores
     Route::get('/proveedores', [ProveedorController::class, 'listarProveedores']);
     Route::post('/proveedores/nuevo', [ProveedorController::class, 'nuevoProveedor']);
     Route::get('/proveedores/detalle/{id}', [ProveedorController::class, 'detalleProveedor']);
     Route::post('/pago/nuevo', [PagoController::class, 'nuevoPago']);
-
-
     Route::get('/pagos/detalle/abonos/{proveedorId}/{pagoId}', [AbonoController::class, 'detalleAbono']);
     Route::post('/abonos/nuevo', [AbonoController::class, 'nuevoAbono']);
-
     Route::get('/distribucion/recuento', [DistribucionController::class, 'recuentoPagosDistribucion']);
+
+
+
+
+    // Rutas Ingreso
+    Route::get('/ingreso', [IngresoController::class, 'index']);
 });
 
 

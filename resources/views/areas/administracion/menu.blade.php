@@ -14,7 +14,7 @@
 
             <div class="row mt-5">
                 <div class="areas">
-                    <a href="{{ url('#') }}">
+                    <a href="{{ url('/ingreso') }}">
                         <div class="card px-2">
                             <div class="card-body d-flex gap-2 justify-start align-items-center">
                                 <i class="fa-regular fa-folder fs-3 text-primary"></i>
