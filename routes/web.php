@@ -81,7 +81,8 @@ Route::middleware('auth')->group(function () {
 
 
     // Rutas Ingreso
-    Route::get('/ingreso', [IngresoController::class, 'index']);
+    Route::get('/ingreso', [IngresoController::class, 'index'])->name('ingreso');
+    Route::post('/ingreso/registro', [IngresoController::class, 'registrosocios']);
 });
 
 
