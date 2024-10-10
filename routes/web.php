@@ -8,6 +8,7 @@ use App\Http\Controllers\pagoProveedores\PagoController;
 use App\Http\Controllers\pagoProveedores\DistribucionController;
 use App\Http\Controllers\RepertorioSocios\ProduccionController;
 use App\Http\Controllers\Ingreso\IngresoController;
+use App\Http\Controllers\Ingreso\VisitanteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -82,7 +83,15 @@ Route::middleware('auth')->group(function () {
 
     // Rutas Ingreso
     Route::get('/ingreso', [IngresoController::class, 'index'])->name('ingreso');
-    Route::post('/ingreso/registro', [IngresoController::class, 'registrosocios']);
+    Route::post('/ingreso/registro', [IngresoController::class, 'IngresoRegistro']);
+    Route::get('/consulta/registros', [IngresoController::class, 'listarIngresos'])->name('listarIngresos');
+    Route::get('/salida/{id}', [IngresoController::class, 'darSalida'])->name('darSalida');
+
+
+
+    // Rutas visitante
+    Route::get('/nuevo/visitante', [VisitanteController::class, 'vistaNuevoVisitante'])->name('vistaNuevoVisitante');
+    Route::post('/nuevo/visitante', [VisitanteController::class, 'store'])->name('store');
 });
 
 
