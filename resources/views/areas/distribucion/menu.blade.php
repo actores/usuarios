@@ -20,15 +20,7 @@
                                 <span class="title_card">Usuarios</span>
                             </div>
                         </div>
-                    </a>
-                    <a href="{{ url('/distribucion/recuento') }}">
-                        <div class="card px-2">
-                            <div class="card-body d-flex gap-2 justify-start align-items-center">
-                                <i class="fa-regular fa-folder fs-3 text-primary"></i>
-                                <span class="title_card">Prescripción</span>
-                            </div>
-                        </div>
-                    </a>
+                    </a>                  
                 </div>
             </div>
         </div>

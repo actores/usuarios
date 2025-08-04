@@ -11,19 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('abonos', function (Blueprint $table) {
+        Schema::create('comentarios_pagos', function (Blueprint $table) {
             $table->id();
+            $table->text('comentario');
+            $table->unsignedBigInteger('usuario_id');
             $table->unsignedBigInteger('pagoUsuario_id');
-            $table->unsignedBigInteger('anio_pago');
-            $table->decimal('importe', 14, 2); 
-            $table->decimal('tasa_administracion', 14, 2); 
-            $table->decimal('tasa_bienestar', 14, 2); 
-            $table->string('factura');
             $table->timestamps();
 
-            
+            // Clave foránea al usuario
+            $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade');
+
+            // Clave foránea a la tabla pagos_usuarios
             $table->foreign('pagoUsuario_id')->references('id')->on('pagos_usuarios')->onDelete('cascade');
-            $table->foreign('anio_pago')->references('id')->on('tasas_usuarios')->onDelete('cascade');
         });
     }
 
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('abonos');
+        Schema::dropIfExists('comentarios_pagos');
     }
 };
