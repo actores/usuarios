@@ -73,12 +73,12 @@
                 </div>
 
                 <span>
-                    <button class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded text-sm"
-                        @click="modalEditarUsuario = true">
+                    <button type="button" @click="$dispatch('abrir-editar-usuario')"
+                        class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded text-sm">
                         Editar usuario
                     </button>
                     <button class="px-4 py-2 text-white bg-sky-600 hover:bg-sky-700 rounded text-sm"
-                        @click="modalPago = true">
+                        @click="$dispatch('abrir-modal-pago')">
                         Nuevo pago
                     </button>
                 </span>
@@ -106,6 +106,18 @@
                             @php
                                 $rutaArchivo = 'facturas/' . $pago->factura;
                                 $urlDescarga = asset(Storage::url($rutaArchivo));
+
+                                $porcentaje = number_format($pago->porcentaje_pago, 0);
+                                if ($porcentaje <= 25) {
+                                    $color = 'bg-red-500';
+                                } elseif ($porcentaje <= 50) {
+                                    $color = 'bg-orange-500';
+                                } elseif ($porcentaje <= 75) {
+                                    $color = 'bg-yellow-400';
+                                } else {
+                                    $color = 'bg-green-500';
+                                }
+
                             @endphp
                             <tr class="hover:bg-gray-50">
                                 <td class="px-4 py-2 text-center">{{ $pago->anio_explotacion }}</td>
@@ -117,10 +129,22 @@
                                 </td>
                                 <td class="px-4 py-2 text-center">
                                     ${{ number_format($pago->total_abonos, 0, ',', '.') }}</td>
-                                <td
-                                    class="px-4 py-2 font-bold {{ number_format($pago->porcentaje_pago, 0) > 51 ? 'text-green-600' : 'text-red-600' }} text-center">
-                                    {{ number_format($pago->porcentaje_pago, 0) }}%
+                                <td class="px-4 py-2 text-center">
+                                    <div x-data="{ ancho: 0, preferWhite: {{ $preferWhite ? 'true' : 'false' }} }" x-init="setTimeout(() => ancho = {{ $porcentaje }}, 200)"
+                                        class="w-full bg-gray-200 rounded-full h-6 relative overflow-hidden">
+
+                                        <!-- barra coloreada (fondo dinámico) -->
+                                        <div class="absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out {{ $color }}"
+                                            :style="'width: ' + ancho + '%'"></div>
+
+                                        <!-- número centrado como overlay, cambia color según ancho y preferWhite -->
+                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-sm font-bold transition-colors duration-200"
+                                            :class="(ancho >= 12 && preferWhite) ? 'text-white' : 'text-gray-800'">
+                                            {{ $porcentaje }}%
+                                        </div>
+                                    </div>
                                 </td>
+
                                 <td class="px-4 py-2 text-center">{{ $pago->estadoPago }}</td>
                                 <td class="px-4 py-2 text-center">
                                     <a href="/pagos/detalle/abonos/{{ $usuario->id }}/{{ $pago->id }}"
@@ -201,13 +225,13 @@
             </div>
 
             <!-- Modal Nuevo Pago-->
-            <div x-show="modalPago" x-cloak
+            <div x-data="formPago" x-on:abrir-modal-pago.window="modalPago = true" x-show="modalPago" x-cloak
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div @click.away="modalPago = false" class="bg-white rounded-lg shadow-lg max-w-lg w-full">
+                <div @click.away="cerrar()" class="bg-white rounded-lg shadow-lg max-w-lg w-full">
                     <!-- Header -->
                     <div class="flex justify-between items-center px-6 py-4 border-b">
                         <h2 class="text-lg font-semibold">Nuevo pago</h2>
-                        <button @click="modalPago = false" class="text-gray-500 hover:text-gray-700">&times;</button>
+                        <button @click="cerrar()" class="text-gray-500 hover:text-gray-700">&times;</button>
                     </div>
 
                     <!-- Body -->
@@ -218,24 +242,27 @@
                             <input type="hidden" name="InputUsuarioId" value="{{ $usuario->id }}">
 
                             <div>
-                                <label for="inputAnioExplotacion" class="block text-sm font-medium text-gray-700">Año
-                                    explotación</label>
+                                <label for="inputAnioExplotacion" class="block text-sm font-medium text-gray-700">
+                                    Año explotación
+                                </label>
                                 <input type="number" name="inputAnioExplotacion" id="inputAnioExplotacion"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     placeholder="Ingresa el año de explotación">
                             </div>
 
                             <div>
-                                <label for="inputImporte"
-                                    class="block text-sm font-medium text-gray-700">Importe</label>
+                                <label for="inputImporte" class="block text-sm font-medium text-gray-700">
+                                    Importe
+                                </label>
                                 <input type="number" name="inputImporte" id="inputImporte"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     placeholder="Ingresa valor de importe">
                             </div>
 
                             <div>
-                                <label for="inputFactura"
-                                    class="block text-sm font-medium text-gray-700">Factura</label>
+                                <label for="inputFactura" class="block text-sm font-medium text-gray-700">
+                                    Factura
+                                </label>
                                 <input type="file" name="inputFactura" id="inputFactura"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
                             </div>
@@ -244,7 +271,7 @@
                             <div class="flex justify-end gap-2 pt-4 border-t">
                                 <button type="button"
                                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                                    @click="modalPago = false">
+                                    @click="cerrar()">
                                     Cerrar
                                 </button>
                                 <button type="submit"
@@ -256,6 +283,7 @@
                     </div>
                 </div>
             </div>
+
 
 
             <!-- Modal Comentarios-->
@@ -317,50 +345,52 @@
             </div>
 
             <!-- Modal Editar Usuario -->
-            <div x-show="modalEditarUsuario" x-cloak
+            <div x-data="formEditarUsuario" x-on:abrir-editar-usuario.window="modalEditarUsuario = true"
+                x-show="modalEditarUsuario" x-cloak
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div @click.away="modalEditarUsuario = false" class="bg-white rounded-lg shadow-lg w-full max-w-xl">
+                <div @click.away="cerrar()" class="bg-white rounded-lg shadow-lg w-full max-w-md">
                     <!-- Header -->
                     <div class="flex justify-between items-center px-5 py-4 border-b">
                         <h2 class="text-lg font-semibold">Actualizar Usuario</h2>
-                        <button @click="modalEditarUsuario = false"
-                            class="text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Cerrar">
-                            &times;
-                        </button>
+                        <button @click="cerrar()" class="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                            aria-label="Cerrar">&times;</button>
                     </div>
 
                     <!-- Body -->
                     <div class="px-5 py-4">
                         <form action="{{ route('usuarios.actualizar', $usuario->id) }}" method="POST"
-                            enctype="multipart/form-data" class="space-y-4" id="form_nuevo_usuario">
+                            enctype="multipart/form-data" class="space-y-4" id="form_editar_usuario">
                             @csrf
                             @method('PUT')
 
                             <div>
-                                <label for="inputNombre"
+                                <label for="inputNombreEditar"
                                     class="block text-sm font-medium text-gray-700">Nombre</label>
-                                <input type="text" name="inputNombre" id="inputNombre"
+                                <input type="text" name="inputNombre" id="inputNombreEditar"
                                     placeholder="Ingresa nombre completo"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     value="{{ $usuario->nombre }}">
                             </div>
 
                             <div>
-                                <label for="inputRazonSocial" class="block text-sm font-medium text-gray-700">Razón
-                                    Social</label>
-                                <input type="text" name="inputRazonSocial" id="inputRazonSocial"
+                                <label for="inputRazonSocialEditar" class="block text-sm font-medium text-gray-700">
+                                    Razón Social
+                                </label>
+                                <input type="text" name="inputRazonSocial" id="inputRazonSocialEditar"
                                     placeholder="Ingresa razón social"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     value="{{ $usuario->razonSocial }}">
                             </div>
 
                             <div>
-                                <label for="inputTipoUsuario" class="block text-sm font-medium text-gray-700">Tipo de
-                                    usuario</label>
-                                <select name="inputTipoUsuario" id="inputTipoUsuario"
+                                <label for="inputTipoUsuarioEditar" class="block text-sm font-medium text-gray-700">
+                                    Tipo de usuario
+                                </label>
+                                <select name="inputTipoUsuario" id="inputTipoUsuarioEditar"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
                                     <option value="" {{ empty($usuario->tipo_usuario) ? 'selected' : '' }}>
-                                        Seleccione un tipo</option>
+                                        Seleccione un tipo
+                                    </option>
                                     @foreach ($tiposUsuario as $tipoUsuario)
                                         <option value="{{ $tipoUsuario->id }}"
                                             {{ $usuario->tipo_usuario === $tipoUsuario->nombre ? 'selected' : '' }}>
@@ -371,26 +401,27 @@
                             </div>
 
                             <div>
-                                <label for="inputNit" class="block text-sm font-medium text-gray-700">Nit</label>
-                                <input type="number" name="inputNit" id="inputNit"
+                                <label for="inputNitEditar"
+                                    class="block text-sm font-medium text-gray-700">Nit</label>
+                                <input type="number" name="inputNit" id="inputNitEditar"
                                     placeholder="Ingresa número de nit"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     value="{{ $usuario->nit }}">
                             </div>
 
                             <div>
-                                <label for="inputDireccion"
+                                <label for="inputDireccionEditar"
                                     class="block text-sm font-medium text-gray-700">Dirección</label>
-                                <input type="text" name="inputDireccion" id="inputDireccion"
+                                <input type="text" name="inputDireccion" id="inputDireccionEditar"
                                     placeholder="Ingresa dirección completa"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     value="{{ $usuario->direccion }}">
                             </div>
 
                             <div>
-                                <label for="inputCiudad"
+                                <label for="inputCiudadEditar"
                                     class="block text-sm font-medium text-gray-700">Ciudad</label>
-                                <input type="text" name="inputCiudad" id="inputCiudad"
+                                <input type="text" name="inputCiudad" id="inputCiudadEditar"
                                     placeholder="Ingresa ciudad"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
                                     value="{{ $usuario->ciudad }}">
@@ -398,7 +429,7 @@
 
                             <!-- Footer -->
                             <div class="flex justify-end gap-2 pt-4 border-t mt-4">
-                                <button type="button" @click="modalEditarUsuario = false"
+                                <button type="button" @click="cerrar()"
                                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                                     Cerrar
                                 </button>
@@ -409,9 +440,9 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
+
 
 
 
@@ -422,16 +453,17 @@
 
     @section('scripts')
         <script>
+            // Validaciones formulario neuvo pago 
             document.addEventListener('alpine:init', () => {
-                Alpine.data('formEditarUsuario', () => ({
-                    open: false,
+                Alpine.data('formPago', () => ({
+                    modalPago: false,
                     cerrar() {
-                        this.open = false;
+                        this.modalPago = false;
                         this.limpiarFormulario();
                         this.limpiarErrores();
                     },
                     limpiarFormulario() {
-                        const form = document.getElementById('form_nuevo_usuario');
+                        const form = document.getElementById('form_nuevo_pago');
                         if (form) form.reset();
                     },
                     limpiarErrores() {
@@ -439,27 +471,163 @@
                         document.querySelectorAll('.error-laravel').forEach(el => el.remove());
                     }
                 }));
+            });
 
-                Alpine.data('modalEditarUsuario', () => ({
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('form_nuevo_pago');
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    const campos = [{
+                            id: 'inputAnioExplotacion',
+                            mensaje: 'El año de explotación es obligatorio.'
+                        },
+                        {
+                            id: 'inputImporte',
+                            mensaje: 'El importe es obligatorio.'
+                        },
+                        {
+                            id: 'inputFactura',
+                            mensaje: 'Debe adjuntar la factura.'
+                        }
+                    ];
+
+                    let valido = true;
+
+                    // Quitar errores previos
+                    document.querySelectorAll('.error-front').forEach(el => el.remove());
+
+                    campos.forEach(campo => {
+                        const input = document.getElementById(campo.id);
+                        if (!input || !input.value.trim()) {
+                            valido = false;
+
+                            const error = document.createElement('p');
+                            error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
+                            error.innerText = campo.mensaje;
+
+                            input.insertAdjacentElement('afterend', error);
+                        }
+                    });
+
+                    if (!valido) e.preventDefault();
+                });
+            });
+
+
+            // Validaciones formulario editar usuario
+
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('formEditarUsuario', () => ({
                     modalEditarUsuario: false,
-
-                    init() {
-                        this.$watch('modalEditarUsuario', (isOpen) => {
-                            if (!isOpen) {
-                                // Limpiar errores cuando se cierra el modal
-                                this.limpiarErrores();
-                                // Opcional: también puedes resetear el formulario si quieres
-                                // document.getElementById('form_nuevo_usuario')?.reset();
-                            }
-                        });
+                    cerrar() {
+                        this.modalEditarUsuario = false;
+                        this.limpiarFormulario();
+                        this.limpiarErrores();
                     },
-
+                    limpiarFormulario() {
+                        const form = document.getElementById('form_editar_usuario');
+                        if (form) form.reset();
+                    },
                     limpiarErrores() {
                         document.querySelectorAll('.error-front').forEach(el => el.remove());
                         document.querySelectorAll('.error-laravel').forEach(el => el.remove());
                     }
                 }));
             });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('form_editar_usuario');
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    const campos = [{
+                            id: 'inputNombreEditar',
+                            mensaje: 'El nombre es obligatorio.'
+                        },
+                        {
+                            id: 'inputRazonSocialEditar',
+                            mensaje: 'La razón social es obligatoria.'
+                        },
+                        {
+                            id: 'inputTipoUsuarioEditar',
+                            mensaje: 'Seleccione un tipo de usuario.'
+                        },
+                        {
+                            id: 'inputNitEditar',
+                            mensaje: 'El NIT es obligatorio.'
+                        },
+                        {
+                            id: 'inputDireccionEditar',
+                            mensaje: 'La dirección es obligatoria.'
+                        },
+                        {
+                            id: 'inputCiudadEditar',
+                            mensaje: 'La ciudad es obligatoria.'
+                        }
+                    ];
+
+                    let valido = true;
+
+                    document.querySelectorAll('.error-front').forEach(el => el.remove());
+
+                    campos.forEach(campo => {
+                        const input = document.getElementById(campo.id);
+                        if (!input || !input.value.trim()) {
+                            valido = false;
+
+                            const error = document.createElement('p');
+                            error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
+                            error.innerText = campo.mensaje;
+
+                            input.insertAdjacentElement('afterend', error);
+                        }
+                    });
+
+                    if (!valido) e.preventDefault();
+                });
+            });
+
+            // Otras validaciones
+
+            // document.addEventListener('alpine:init', () => {
+            //     Alpine.data('formEditarUsuario', () => ({
+            //         open: false,
+            //         cerrar() {
+            //             this.open = false;
+            //             this.limpiarFormulario();
+            //             this.limpiarErrores();
+            //         },
+            //         limpiarFormulario() {
+            //             const form = document.getElementById('form_nuevo_usuario');
+            //             if (form) form.reset();
+            //         },
+            //         limpiarErrores() {
+            //             document.querySelectorAll('.error-front').forEach(el => el.remove());
+            //             document.querySelectorAll('.error-laravel').forEach(el => el.remove());
+            //         }
+            //     }));
+
+            //     Alpine.data('modalEditarUsuario', () => ({
+            //         modalEditarUsuario: false,
+
+            //         init() {
+            //             this.$watch('modalEditarUsuario', (isOpen) => {
+            //                 if (!isOpen) {
+            //                     // Limpiar errores cuando se cierra el modal
+            //                     this.limpiarErrores();
+            //                     // Opcional: también puedes resetear el formulario si quieres
+            //                     // document.getElementById('form_nuevo_usuario')?.reset();
+            //                 }
+            //             });
+            //         },
+
+            //         limpiarErrores() {
+            //             document.querySelectorAll('.error-front').forEach(el => el.remove());
+            //             document.querySelectorAll('.error-laravel').forEach(el => el.remove());
+            //         }
+            //     }));
+            // });
 
             document.addEventListener('DOMContentLoaded', function() {
 
