@@ -3,34 +3,34 @@
         <div class="mx-auto">
 
             @if (session('success'))
-                <script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: "{{ session('success') }}",
-                        text: "{{ session('success') }}"
-                    });
-                </script>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: "{{ session('success') }}",
+                    text: "{{ session('success') }}"
+                });
+            </script>
             @endif
 
             @if (session('error'))
-                <script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: "{{ session('error') }}",
-                        text: "{{ session('error') }}"
-                    });
-                </script>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: "{{ session('error') }}",
+                    text: "{{ session('error') }}"
+                });
+            </script>
             @endif
 
             @if ($errors->any())
-                <script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'No pudimos guardar el usuario',
-                        html: `{!! implode('<br>', $errors->all()) !!}`,
-                        confirmButtonText: 'Entendido'
-                    });
-                </script>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No pudimos guardar el usuario',
+                    html: `{!! implode('<br>', $errors->all()) !!}`,
+                    confirmButtonText: 'Entendido'
+                });
+            </script>
             @endif
 
             <!-- Breadcrumb -->
@@ -104,107 +104,134 @@
                     <tbody class="divide-y divide-gray-100 text-center text-gray-700">
                         @forelse ($pagos as $pago)
                             @php
-                                $rutaArchivo = 'facturas/' . $pago->factura;
-                                $urlDescarga = asset(Storage::url($rutaArchivo));
+                            $rutaArchivo = 'facturas/' . $pago->factura;
+                            $urlDescarga = asset(Storage::url($rutaArchivo));
 
-                                $porcentaje = number_format($pago->porcentaje_pago, 0);
-                                if ($porcentaje <= 25) {
-                                    $color = 'bg-red-500';
-                                } elseif ($porcentaje <= 50) {
-                                    $color = 'bg-orange-500';
-                                } elseif ($porcentaje <= 75) {
-                                    $color = 'bg-yellow-400';
+                            $porcentajeReal = round($pago->porcentaje_pago, 1); // Redondeo solo a 1 decimal para mostrar
+                            $porcentajeTexto = number_format($porcentajeReal, 1, ',', '.');
+
+                            // Asignar color según rangos más pequeños
+                            if ($porcentajeReal <= 10) {
+                                $color='bg-red-700' ;
+                                $preferWhite=true;
+                                } elseif ($porcentajeReal <=20) {
+                                $color='bg-red-500' ;
+                                $preferWhite=true;
+                                } elseif ($porcentajeReal <=30) {
+                                $color='bg-orange-600' ;
+                                $preferWhite=true;
+                                } elseif ($porcentajeReal <=40) {
+                                $color='bg-orange-400' ;
+                                $preferWhite=true;
+                                } elseif ($porcentajeReal <=50) {
+                                $color='bg-yellow-500' ;
+                                $preferWhite=false;
+                                } elseif ($porcentajeReal <=60) {
+                                $color='bg-yellow-400' ;
+                                $preferWhite=false;
+                                } elseif ($porcentajeReal <=70) {
+                                $color='bg-lime-400' ;
+                                $preferWhite=false;
+                                } elseif ($porcentajeReal <=80) {
+                                $color='bg-lime-500' ;
+                                $preferWhite=false;
+                                } elseif ($porcentajeReal <=90) {
+                                $color='bg-green-500' ;
+                                $preferWhite=true;
                                 } else {
-                                    $color = 'bg-green-500';
+                                $color='bg-green-700' ;
+                                $preferWhite=true;
                                 }
-
                             @endphp
+
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-2 text-center">{{ $pago->anio_explotacion }}</td>
-                                <td class="px-4 py-2 text-center">${{ number_format($pago->importe, 0, ',', '.') }}
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    <a href="{{ $urlDescarga }}" class="text-sky-600 hover:underline"
-                                        target="_blank">Ver factura</a>
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    ${{ number_format($pago->total_abonos, 0, ',', '.') }}</td>
-                                <td class="px-4 py-2 text-center">
-                                    <div x-data="{ ancho: 0, preferWhite: {{ $preferWhite ? 'true' : 'false' }} }" x-init="setTimeout(() => ancho = {{ $porcentaje }}, 200)"
-                                        class="w-full bg-gray-200 rounded-full h-6 relative overflow-hidden">
+                            <td class="px-4 py-2 text-center">{{ $pago->anio_explotacion }}</td>
+                            <td class="px-4 py-2 text-center">${{ number_format($pago->importe, 0, ',', '.') }}</td>
+                            <td class="px-4 py-2 text-center">
+                                <a href="{{ $urlDescarga }}" class="text-sky-600 hover:underline" target="_blank">Ver factura</a>
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                ${{ number_format($pago->total_abonos, 0, ',', '.') }}
+                            </td>
 
-                                        <!-- barra coloreada (fondo dinámico) -->
-                                        <div class="absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out {{ $color }}"
-                                            :style="'width: ' + ancho + '%'"></div>
+                            <td class="px-4 py-2 text-center">
+                                <div x-data="{ ancho: 0 }"
+                                    x-init="setTimeout(() => ancho = {{ $porcentajeReal }}, 100)"
+                                    class="w-full bg-gray-200 rounded-full h-6 relative overflow-hidden">
 
-                                        <!-- número centrado como overlay, cambia color según ancho y preferWhite -->
-                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-sm font-bold transition-colors duration-200"
-                                            :class="(ancho >= 12 && preferWhite) ? 'text-white' : 'text-gray-800'">
-                                            {{ $porcentaje }}%
+                                    <!-- Barra -->
+                                    <template x-if="{{ $porcentajeReal }} > 0">
+                                        <div class="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-in-out {{ $color }}"
+                                            :style="'width: ' + ancho + '%'">
                                         </div>
-                                    </div>
-                                </td>
+                                    </template>
 
-                                <td class="px-4 py-2 text-center">{{ $pago->estadoPago }}</td>
-                                <td class="px-4 py-2 text-center">
-                                    <a href="/pagos/detalle/abonos/{{ $usuario->id }}/{{ $pago->id }}"
-                                        class="text-sky-600 hover:underline">Ver abonos</a>
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    <a href="#" class="text-sky-600 hover:underline comentario-btn"
-                                        @click="modalComentarioPago = true" data-pago-id="{{ $pago->id }}">
-                                        Comentar
-                                    </a>
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    <div x-data="{ open: false }" class="relative inline-block text-left">
-                                        <!-- Botón de tres puntos -->
-                                        <button @click="open = !open"
-                                            class="flex items-center justify-center text-gray-500 hover:text-black focus:outline-none opacity-70 hover:opacity-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-dots-vertical">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                                <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                                <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                                            </svg>
-                                        </button>
-
-                                        <!-- Menú desplegable -->
-                                        <div x-show="open" @click.away="open = false"
-                                            class="absolute right-0 z-10 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
-                                            <ul class="py-1 text-sm text-gray-700">
-                                                <li>
-                                                    <a href="{{ route('exportar.pago', $pago->id) }}"
-                                                        class="block px-4 py-2 hover:bg-gray-100">
-                                                        Exportar
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="{{ route('pagos.editar', $pago->id) }}"
-                                                        class="block px-4 py-2 text-sky-600 hover:bg-gray-100 hover:underline">
-                                                        Editar
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <form action="{{ route('pagos.destroy', $pago->id) }}"
-                                                        method="POST" class="form-eliminar">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
-                                                            Eliminar
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                    <!-- Texto -->
+                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-sm font-bold transition-colors duration-200"
+                                        :class="(ancho >= 15 && {{ $preferWhite ? 'true' : 'false' }}) ? 'text-white' : 'text-gray-800'">
+                                        {{ $porcentajeTexto }}%
                                     </div>
-                                </td>
+                                </div>
+                            </td>
+
+                            <td class="px-4 py-2 text-center">{{ $pago->estadoPago }}</td>
+                            <td class="px-4 py-2 text-center">
+                                <a href="/pagos/detalle/abonos/{{ $usuario->id }}/{{ $pago->id }}"
+                                    class="text-sky-600 hover:underline">Ver abonos</a>
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                <a href="#" class="text-sky-600 hover:underline comentario-btn"
+                                    @click="modalComentarioPago = true" data-pago-id="{{ $pago->id }}">
+                                    Comentar
+                                </a>
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                <div x-data="{ open: false }" class="relative inline-block text-left">
+                                    <button @click="open = !open"
+                                        class="flex items-center justify-center text-gray-500 hover:text-black focus:outline-none opacity-70 hover:opacity-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="icon icon-tabler icons-tabler-outline icon-tabler-dots-vertical">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                            <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="open" x-cloak @click.outside="open = false"
+                                        class="absolute right-0 z-10 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
+
+                                        <ul class="py-1 text-sm text-gray-700">
+                                            <li>
+                                                <a href="{{ route('exportar.pago', $pago->id) }}"
+                                                    class="block px-4 py-2 hover:bg-gray-100">
+                                                    Exportar
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('pagos.editar', $pago->id) }}"
+                                                    class="block px-4 py-2 text-sky-600 hover:bg-gray-100 hover:underline">
+                                                    Editar
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('pagos.destroy', $pago->id) }}" method="POST" class="form-eliminar">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
                             </tr>
-                        @empty
+                            @empty
                             <tr>
                                 <td colspan="9" class="py-12">
                                     <div class="flex flex-col items-center justify-center text-gray-500">
@@ -214,13 +241,14 @@
                                                 d="M9.75 17l-4.75-4.75m0 0L9.75 7.5m-4.75 4.75h14.5" />
                                         </svg>
                                         <p class="text-lg font-semibold">No hay pagos registrados</p>
-                                        <p class="text-sm text-gray-400 mt-1">Cuando registres pagos, aparecerán aquí.
-                                        </p>
+                                        <p class="text-sm text-gray-400 mt-1">Cuando registres pagos, aparecerán aquí.</p>
                                     </div>
                                 </td>
                             </tr>
-                        @endforelse
+                            @endforelse
                     </tbody>
+
+
                 </table>
             </div>
 
@@ -392,10 +420,10 @@
                                         Seleccione un tipo
                                     </option>
                                     @foreach ($tiposUsuario as $tipoUsuario)
-                                        <option value="{{ $tipoUsuario->id }}"
-                                            {{ $usuario->tipo_usuario === $tipoUsuario->nombre ? 'selected' : '' }}>
-                                            {{ $tipoUsuario->nombre }}
-                                        </option>
+                                    <option value="{{ $tipoUsuario->id }}"
+                                        {{ $usuario->tipo_usuario === $tipoUsuario->nombre ? 'selected' : '' }}>
+                                        {{ $tipoUsuario->nombre }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -452,123 +480,176 @@
     </section>
 
     @section('scripts')
-        <script>
-            // Validaciones formulario neuvo pago 
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('formPago', () => ({
-                    modalPago: false,
-                    cerrar() {
-                        this.modalPago = false;
-                        this.limpiarFormulario();
-                        this.limpiarErrores();
-                    },
-                    limpiarFormulario() {
-                        const form = document.getElementById('form_nuevo_pago');
-                        if (form) form.reset();
-                    },
-                    limpiarErrores() {
-                        document.querySelectorAll('.error-front').forEach(el => el.remove());
-                        document.querySelectorAll('.error-laravel').forEach(el => el.remove());
-                    }
-                }));
-            });
-
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('form_nuevo_pago');
-                if (!form) return;
-
-                form.addEventListener('submit', function(e) {
-                    const campos = [{
-                            id: 'inputAnioExplotacion',
-                            mensaje: 'El año de explotación es obligatorio.'
-                        },
-                        {
-                            id: 'inputImporte',
-                            mensaje: 'El importe es obligatorio.'
-                        },
-                        {
-                            id: 'inputFactura',
-                            mensaje: 'Debe adjuntar la factura.'
-                        }
-                    ];
-
-                    let valido = true;
-
-                    // Quitar errores previos
+    <script>
+        // Validaciones formulario nuevo pago 
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('formPago', () => ({
+                modalPago: false,
+                cerrar() {
+                    this.modalPago = false;
+                    this.limpiarFormulario();
+                    this.limpiarErrores();
+                },
+                limpiarFormulario() {
+                    const form = document.getElementById('form_nuevo_pago');
+                    if (form) form.reset();
+                },
+                limpiarErrores() {
                     document.querySelectorAll('.error-front').forEach(el => el.remove());
+                    document.querySelectorAll('.error-laravel').forEach(el => el.remove());
+                }
+            }));
+        });
 
-                    campos.forEach(campo => {
-                        const input = document.getElementById(campo.id);
-                        if (!input || !input.value.trim()) {
-                            valido = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('form_nuevo_pago');
+            if (!form) return;
 
-                            const error = document.createElement('p');
-                            error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
-                            error.innerText = campo.mensaje;
-
-                            input.insertAdjacentElement('afterend', error);
-                        }
-                    });
-
-                    if (!valido) e.preventDefault();
-                });
-            });
-
-
-            // Validaciones formulario editar usuario
-
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('formEditarUsuario', () => ({
-                    modalEditarUsuario: false,
-                    cerrar() {
-                        this.modalEditarUsuario = false;
-                        this.limpiarFormulario();
-                        this.limpiarErrores();
+            form.addEventListener('submit', function(e) {
+                const campos = [{
+                        id: 'inputAnioExplotacion',
+                        mensaje: 'El año de explotación es obligatorio.'
                     },
-                    limpiarFormulario() {
-                        const form = document.getElementById('form_editar_usuario');
-                        if (form) form.reset();
+                    {
+                        id: 'inputImporte',
+                        mensaje: 'El importe es obligatorio.'
                     },
-                    limpiarErrores() {
-                        document.querySelectorAll('.error-front').forEach(el => el.remove());
-                        document.querySelectorAll('.error-laravel').forEach(el => el.remove());
+                    {
+                        id: 'inputFactura',
+                        mensaje: 'Debe adjuntar la factura.'
                     }
-                }));
+                ];
+
+                let valido = true;
+
+                // Quitar errores previos
+                document.querySelectorAll('.error-front').forEach(el => el.remove());
+
+                campos.forEach(campo => {
+                    const input = document.getElementById(campo.id);
+                    if (!input || !input.value.trim()) {
+                        valido = false;
+
+                        const error = document.createElement('p');
+                        error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
+                        error.innerText = campo.mensaje;
+
+                        input.insertAdjacentElement('afterend', error);
+                    }
+                });
+
+                if (!valido) e.preventDefault();
             });
+        });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('form_editar_usuario');
-                if (!form) return;
 
+        // Validaciones formulario editar usuario
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('formEditarUsuario', () => ({
+                modalEditarUsuario: false,
+                cerrar() {
+                    this.modalEditarUsuario = false;
+                    this.limpiarFormulario();
+                    this.limpiarErrores();
+                },
+                limpiarFormulario() {
+                    const form = document.getElementById('form_editar_usuario');
+                    if (form) form.reset();
+                },
+                limpiarErrores() {
+                    document.querySelectorAll('.error-front').forEach(el => el.remove());
+                    document.querySelectorAll('.error-laravel').forEach(el => el.remove());
+                }
+            }));
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('form_editar_usuario');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                const campos = [{
+                        id: 'inputNombreEditar',
+                        mensaje: 'El nombre es obligatorio.'
+                    },
+                    {
+                        id: 'inputRazonSocialEditar',
+                        mensaje: 'La razón social es obligatoria.'
+                    },
+                    {
+                        id: 'inputTipoUsuarioEditar',
+                        mensaje: 'Seleccione un tipo de usuario.'
+                    },
+                    {
+                        id: 'inputNitEditar',
+                        mensaje: 'El NIT es obligatorio.'
+                    },
+                    {
+                        id: 'inputDireccionEditar',
+                        mensaje: 'La dirección es obligatoria.'
+                    },
+                    {
+                        id: 'inputCiudadEditar',
+                        mensaje: 'La ciudad es obligatoria.'
+                    }
+                ];
+
+                let valido = true;
+
+                document.querySelectorAll('.error-front').forEach(el => el.remove());
+
+                campos.forEach(campo => {
+                    const input = document.getElementById(campo.id);
+                    if (!input || !input.value.trim()) {
+                        valido = false;
+
+                        const error = document.createElement('p');
+                        error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
+                        error.innerText = campo.mensaje;
+
+                        input.insertAdjacentElement('afterend', error);
+                    }
+                });
+
+                if (!valido) e.preventDefault();
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // === VALIDACIÓN form_nuevo_usuario ===
+            const form = document.getElementById('form_nuevo_usuario');
+            if (form) {
                 form.addEventListener('submit', function(e) {
                     const campos = [{
-                            id: 'inputNombreEditar',
+                            id: 'inputNombre',
                             mensaje: 'El nombre es obligatorio.'
                         },
                         {
-                            id: 'inputRazonSocialEditar',
+                            id: 'inputRazonSocial',
                             mensaje: 'La razón social es obligatoria.'
                         },
                         {
-                            id: 'inputTipoUsuarioEditar',
+                            id: 'inputTipoUsuario',
                             mensaje: 'Seleccione un tipo de usuario.'
                         },
                         {
-                            id: 'inputNitEditar',
+                            id: 'inputNit',
                             mensaje: 'El NIT es obligatorio.'
                         },
                         {
-                            id: 'inputDireccionEditar',
+                            id: 'inputDireccion',
                             mensaje: 'La dirección es obligatoria.'
                         },
                         {
-                            id: 'inputCiudadEditar',
+                            id: 'inputCiudad',
                             mensaje: 'La ciudad es obligatoria.'
-                        }
+                        },
                     ];
 
                     let valido = true;
-
                     document.querySelectorAll('.error-front').forEach(el => el.remove());
 
                     campos.forEach(campo => {
@@ -586,218 +667,125 @@
 
                     if (!valido) e.preventDefault();
                 });
-            });
+            }
 
-            // Otras validaciones
+            // === INICIALIZA FUNCIONES PARA EL MODAL ===
+            inicializarCerrarModal();
+            inicializarBotonesComentario();
+            inicializarFormularioComentario();
+            activarConfirmacionEliminar();
 
-            // document.addEventListener('alpine:init', () => {
-            //     Alpine.data('formEditarUsuario', () => ({
-            //         open: false,
-            //         cerrar() {
-            //             this.open = false;
-            //             this.limpiarFormulario();
-            //             this.limpiarErrores();
-            //         },
-            //         limpiarFormulario() {
-            //             const form = document.getElementById('form_nuevo_usuario');
-            //             if (form) form.reset();
-            //         },
-            //         limpiarErrores() {
-            //             document.querySelectorAll('.error-front').forEach(el => el.remove());
-            //             document.querySelectorAll('.error-laravel').forEach(el => el.remove());
-            //         }
-            //     }));
-
-            //     Alpine.data('modalEditarUsuario', () => ({
-            //         modalEditarUsuario: false,
-
-            //         init() {
-            //             this.$watch('modalEditarUsuario', (isOpen) => {
-            //                 if (!isOpen) {
-            //                     // Limpiar errores cuando se cierra el modal
-            //                     this.limpiarErrores();
-            //                     // Opcional: también puedes resetear el formulario si quieres
-            //                     // document.getElementById('form_nuevo_usuario')?.reset();
-            //                 }
-            //             });
-            //         },
-
-            //         limpiarErrores() {
-            //             document.querySelectorAll('.error-front').forEach(el => el.remove());
-            //             document.querySelectorAll('.error-laravel').forEach(el => el.remove());
-            //         }
-            //     }));
-            // });
-
-            document.addEventListener('DOMContentLoaded', function() {
-
-                // === VALIDACIÓN form_nuevo_usuario ===
-                const form = document.getElementById('form_nuevo_usuario');
-                if (form) {
-                    form.addEventListener('submit', function(e) {
-                        const campos = [{
-                                id: 'inputNombre',
-                                mensaje: 'El nombre es obligatorio.'
-                            },
-                            {
-                                id: 'inputRazonSocial',
-                                mensaje: 'La razón social es obligatoria.'
-                            },
-                            {
-                                id: 'inputTipoUsuario',
-                                mensaje: 'Seleccione un tipo de usuario.'
-                            },
-                            {
-                                id: 'inputNit',
-                                mensaje: 'El NIT es obligatorio.'
-                            },
-                            {
-                                id: 'inputDireccion',
-                                mensaje: 'La dirección es obligatoria.'
-                            },
-                            {
-                                id: 'inputCiudad',
-                                mensaje: 'La ciudad es obligatoria.'
-                            },
-                        ];
-
-                        let valido = true;
-                        document.querySelectorAll('.error-front').forEach(el => el.remove());
-
-                        campos.forEach(campo => {
-                            const input = document.getElementById(campo.id);
-                            if (!input || !input.value.trim()) {
-                                valido = false;
-
-                                const error = document.createElement('p');
-                                error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
-                                error.innerText = campo.mensaje;
-
-                                input.insertAdjacentElement('afterend', error);
-                            }
-                        });
-
-                        if (!valido) e.preventDefault();
+            function inicializarCerrarModal() {
+                const cerrarModal = document.querySelector('.btn-cerrar-modal');
+                if (cerrarModal) {
+                    cerrarModal.addEventListener('click', () => {
+                        const hidden = document.getElementById('pagoUsuarioId');
+                        if (hidden) hidden.value = '';
                     });
                 }
+            }
 
-                // === INICIALIZA FUNCIONES PARA EL MODAL ===
-                inicializarCerrarModal();
-                inicializarBotonesComentario();
-                inicializarFormularioComentario();
-                activarConfirmacionEliminar();
+            function inicializarBotonesComentario() {
+                document.body.addEventListener('click', function(event) {
+                    const target = event.target.closest('.comentario-btn');
+                    if (!target) return;
 
-                function inicializarCerrarModal() {
-                    const cerrarModal = document.querySelector('.btn-cerrar-modal');
-                    if (cerrarModal) {
-                        cerrarModal.addEventListener('click', () => {
-                            const hidden = document.getElementById('pagoUsuarioId');
-                            if (hidden) hidden.value = '';
-                        });
+                    const pagoId = target.getAttribute('data-pago-id');
+                    const inputHidden = document.getElementById('pagoUsuarioId');
+                    if (inputHidden) inputHidden.value = pagoId;
+
+                    cargarComentarios(pagoId);
+                });
+            }
+
+            function inicializarFormularioComentario() {
+                const form = document.getElementById('formComentario');
+                if (!form) return;
+
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const pagoId = document.getElementById('pagoUsuarioId')?.value;
+                    const comentario = document.getElementById('inputComentario').value.trim();
+
+                    // Validación frontend
+                    document.querySelectorAll('.error-front').forEach(el => el.remove());
+                    let valido = true;
+
+                    if (!pagoId) {
+                        mostrarError('inputComentario', 'No se encontró un pago válido.');
+                        valido = false;
                     }
-                }
 
-                function inicializarBotonesComentario() {
-                    document.body.addEventListener('click', function(event) {
-                        const target = event.target.closest('.comentario-btn');
-                        if (!target) return;
+                    if (!comentario) {
+                        mostrarError('inputComentario', 'El comentario no puede estar vacío.');
+                        valido = false;
+                    }
 
-                        const pagoId = target.getAttribute('data-pago-id');
-                        const inputHidden = document.getElementById('pagoUsuarioId');
-                        if (inputHidden) inputHidden.value = pagoId;
+                    if (!valido) return;
 
-                        cargarComentarios(pagoId);
-                    });
-                }
-
-                function inicializarFormularioComentario() {
-                    const form = document.getElementById('formComentario');
-                    if (!form) return;
-
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-
-                        const pagoId = document.getElementById('pagoUsuarioId')?.value;
-                        const comentario = document.getElementById('inputComentario').value.trim();
-
-                        // Validación frontend
-                        document.querySelectorAll('.error-front').forEach(el => el.remove());
-                        let valido = true;
-
-                        if (!pagoId) {
-                            mostrarError('inputComentario', 'No se encontró un pago válido.');
-                            valido = false;
-                        }
-
-                        if (!comentario) {
-                            mostrarError('inputComentario', 'El comentario no puede estar vacío.');
-                            valido = false;
-                        }
-
-                        if (!valido) return;
-
-                        fetch(`/comentariospagos`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    pagoUsuario_id: pagoId,
-                                    comentario: comentario
-                                })
+                    fetch(`/comentariospagos`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                pagoUsuario_id: pagoId,
+                                comentario: comentario
                             })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Error al enviar el comentario.');
-                                return response.json();
-                            })
-                            .then(() => {
-                                document.getElementById('inputComentario').value = '';
-                                cargarComentarios(pagoId);
-                            })
-                            .catch(error => {
-                                console.error('Error al comentar:', error);
-                            });
-                    });
-                }
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Error al enviar el comentario.');
+                            return response.json();
+                        })
+                        .then(() => {
+                            document.getElementById('inputComentario').value = '';
+                            cargarComentarios(pagoId);
+                        })
+                        .catch(error => {
+                            console.error('Error al comentar:', error);
+                        });
+                });
+            }
 
-                function mostrarError(inputId, mensaje) {
-                    const input = document.getElementById(inputId);
-                    if (!input) return;
-                    const error = document.createElement('p');
-                    error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
-                    error.innerText = mensaje;
-                    input.insertAdjacentElement('afterend', error);
-                }
+            function mostrarError(inputId, mensaje) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                const error = document.createElement('p');
+                error.classList.add('text-red-600', 'text-sm', 'mt-1', 'error-front');
+                error.innerText = mensaje;
+                input.insertAdjacentElement('afterend', error);
+            }
 
-                function cargarComentarios(pagoId) {
-                    const modalBody = document.getElementById('comentariosModalBody');
-                    const loader = document.getElementById('loaderComentarios');
+            function cargarComentarios(pagoId) {
+                const modalBody = document.getElementById('comentariosModalBody');
+                const loader = document.getElementById('loaderComentarios');
 
-                    loader.classList.remove('hidden');
-                    modalBody.classList.add('opacity-0');
-                    modalBody.innerHTML = '<p class="text-sm text-gray-400">Cargando comentarios...</p>';
+                loader.classList.remove('hidden');
+                modalBody.classList.add('opacity-0');
+                modalBody.innerHTML = '<p class="text-sm text-gray-400">Cargando comentarios...</p>';
 
-                    fetch(`/comentariospagos/${pagoId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            loader.classList.add('hidden');
-                            modalBody.classList.remove('opacity-0');
-                            modalBody.innerHTML = '';
+                fetch(`/comentariospagos/${pagoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loader.classList.add('hidden');
+                        modalBody.classList.remove('opacity-0');
+                        modalBody.innerHTML = '';
 
-                            if (data.length === 0) {
-                                modalBody.innerHTML = `
+                        if (data.length === 0) {
+                            modalBody.innerHTML = `
                             <div class="text-center text-gray-500 py-4">
                                 No hay comentarios registrados para este pago.
                             </div>`;
-                                return;
-                            }
+                            return;
+                        }
 
-                            data.forEach(comentario => {
-                                const div = document.createElement('div');
-                                div.className =
-                                    'bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-2 mb-3';
-                                div.innerHTML = `
+                        data.forEach(comentario => {
+                            const div = document.createElement('div');
+                            div.className =
+                                'bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-2 mb-3';
+                            div.innerHTML = `
                             <div class="flex items-start justify-between">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">
@@ -811,44 +799,44 @@
                                     ${new Date(comentario.created_at).toLocaleString()}
                                 </span>
                             </div>`;
-                                modalBody.appendChild(div);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error cargando comentarios:', error);
-                            loader.classList.add('hidden');
-                            modalBody.classList.remove('opacity-0');
-                            modalBody.innerHTML =
-                                '<p class="text-red-500">Error al cargar los comentarios. Intente nuevamente.</p>';
+                            modalBody.appendChild(div);
                         });
-                }
+                    })
+                    .catch(error => {
+                        console.error('Error cargando comentarios:', error);
+                        loader.classList.add('hidden');
+                        modalBody.classList.remove('opacity-0');
+                        modalBody.innerHTML =
+                            '<p class="text-red-500">Error al cargar los comentarios. Intente nuevamente.</p>';
+                    });
+            }
 
-                function activarConfirmacionEliminar() {
-                    const formularios = document.querySelectorAll('.form-eliminar');
+            function activarConfirmacionEliminar() {
+                const formularios = document.querySelectorAll('.form-eliminar');
 
-                    formularios.forEach(formulario => {
-                        formulario.addEventListener('submit', function(e) {
-                            e.preventDefault();
+                formularios.forEach(formulario => {
+                    formulario.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                            Swal.fire({
-                                title: '¿Estás seguro?',
-                                text: 'Esta acción no se puede deshacer',
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#d33',
-                                cancelButtonColor: '#3085d6',
-                                confirmButtonText: 'Sí, eliminar',
-                                cancelButtonText: 'Cancelar'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    formulario.submit();
-                                }
-                            });
+                        Swal.fire({
+                            title: '¿Estás seguro?',
+                            text: 'Esta acción no se puede deshacer',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                formulario.submit();
+                            }
                         });
                     });
-                }
+                });
+            }
 
-            });
-        </script>
+        });
+    </script>
     @endsection
 </x-app-layout>

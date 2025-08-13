@@ -71,9 +71,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/exportar-pago/{id}', [PagoController::class, 'exportPagoConAbonos'])->name('exportar.pago');
 
     Route::get('/pagos/editar/{pago}', [PagoController::class, 'editar'])->name('pagos.editar');
+    Route::get('/abonos/editar/{abono}', [AbonoController::class, 'editar'])->name('abonos.editar');
     Route::put('/pagos/actualizar/{pago}', [PagoController::class, 'updatePago'])->name('pagos.actualizar');
+    Route::put('/abonos/actualizar/{abono}', [AbonoController::class, 'updateAbono'])->name('abonos.actualizar');
 
     Route::delete('/pagos/{id}', [PagoController::class, 'destroy'])->name('pagos.destroy');
+    Route::delete('/abonos/{id}', [AbonoController::class, 'destroy'])->name('abonos.destroy');
 });
 
 

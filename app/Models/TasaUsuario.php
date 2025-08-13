@@ -16,4 +16,10 @@ class TasaUsuario extends Model
         'tipo',
         'tasa',
     ];
+
+    // Relación con Abono
+    public function abonos()
+    {
+        return $this->hasMany(Abono::class, 'anio_pago');
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\PagoUsuario;
 use Illuminate\Http\Request;
 use App\Models\TasaUsuario;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 class AbonoController extends Controller
@@ -21,73 +22,158 @@ class AbonoController extends Controller
         ], [
             'inputAnioPago.required' => 'El campo "Año de pago" es obligatorio.',
             'inputAnioPago.numeric' => 'El "Año de pago" debe ser un número.',
-
             'inputImporte.required' => 'El campo "Importe" es obligatorio.',
             'inputImporte.numeric' => 'El "Importe" debe ser un número.',
-
             'inputFactura.required' => 'Debe adjuntar una factura en formato PDF.',
             'inputFactura.mimes' => 'La factura debe estar en formato PDF.',
             'inputFactura.max' => 'La factura no debe superar los 2MB de tamaño.',
         ]);
 
-        $factura = $request->file("inputFactura");
+        $importe = $request->input('inputImporte');
+        $pagoUsuarioId = $request->input('InputPagoUsuarioId');
 
-        // Formato: fecha + ABONOUSUARIO + ID del pagoProveedor (2 dígitos)
-        $pagoUsuarioId = str_pad($request->input('InputPagoUsuarioId'), 2, '0', STR_PAD_LEFT);
-        $fecha = now()->format('Ymd');
-        $extension = $factura->getClientOriginalExtension();
-        $facturaNombre = "{$fecha}_ABONOUSUARIO_{$pagoUsuarioId}.{$extension}";
-
-        $factura->storeAs('public/facturas', $facturaNombre);
-
-        $tasaAbono = TasaUsuario::select('anio')->where('id', $request->input('inputAnioPago'))->first();
-
-        $tasaAbonoAdministracion = TasaUsuario::where('anio', $tasaAbono->anio)
-            ->where('tipo', 1)->first();
-
-        $tasaAbonoBienestar = TasaUsuario::where('anio', $tasaAbono->anio)
-            ->where('tipo', 2)->first();
-
-        $tasaAbonoPagoAdministracion = $request->input('inputImporte') * ($tasaAbonoAdministracion->tasa / 100);
-        $tasaAbonoPagoBienestar = $request->input('inputImporte') * ($tasaAbonoBienestar->tasa / 100);
-
-        $abono = new Abono();
-        $abono->pagoUsuario_id = $request->input('InputPagoUsuarioId');
-        $abono->anio_pago = $request->input('inputAnioPago');
-        $abono->importe = $request->input('inputImporte');
-        $abono->tasa_administracion = $tasaAbonoPagoAdministracion;
-        $abono->tasa_bienestar = $tasaAbonoPagoBienestar;
-        $abono->factura = $facturaNombre;
-
+        // Calcular deuda pendiente
         $pagosConAbonos = DB::table('pagos_usuarios as pp')
             ->leftJoin('abonos as a', 'a.pagoUsuario_id', '=', 'pp.id')
             ->select(
-                'pp.id as PagoID',
                 'pp.importe as Deuda',
-                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado'),
-                DB::raw('CASE 
-                WHEN pp.importe = COALESCE(SUM(a.importe), 0) THEN 1 
-                WHEN pp.importe < COALESCE(SUM(a.importe), 0) THEN 0 
-                WHEN pp.importe > COALESCE(SUM(a.importe), 0) THEN 2 
-             END as comparacion')
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
             )
-            ->where('pp.id', $request->input('InputPagoUsuarioId'))
+            ->where('pp.id', $pagoUsuarioId)
             ->groupBy('pp.id', 'pp.importe')
             ->first();
 
-        $recuentoDeduda = ($pagosConAbonos->Deuda - $pagosConAbonos->Abonado) - $request->input('inputImporte');
+        $deudaPendiente = $pagosConAbonos->Deuda - $pagosConAbonos->Abonado;
 
-        if ($recuentoDeduda < 0) {
-            return redirect()->back()->with('error', 'El abono excede la deuda');
-        } elseif ($recuentoDeduda == 0) {
-            $abono->save();
-            PagoUsuario::where('id', $request->input('InputPagoUsuarioId'))->update(['estadoPago' => 'Completo']);
-            return redirect()->back()->with('success', 'Abono registrado correctamente.')->with('registrarAbono', 0);
-        } else {
-            $abono->save();
-            return redirect()->back()->with('success', 'Abono registrado correctamente.');
+        if ($importe > $deudaPendiente) {
+            return redirect()->back()->with('error', 'El abono excede la deuda pendiente.');
         }
+
+        // Obtener tasas
+        $tasaSeleccionada = TasaUsuario::findOrFail($request->input('inputAnioPago'));
+        $anio = $tasaSeleccionada->anio;
+
+        $tasaAdministracion = TasaUsuario::where('anio', $anio)->where('tipo', 1)->first();
+        $tasaBienestar = TasaUsuario::where('anio', $anio)->where('tipo', 2)->first();
+
+        $tasaAdmonPago = $importe * ($tasaAdministracion->tasa / 100);
+        $tasaBienestarPago = $importe * ($tasaBienestar->tasa / 100);
+
+        // Crear abono sin factura
+        $abono = new Abono();
+        $abono->pagoUsuario_id = $pagoUsuarioId;
+        $abono->anio_pago = $request->input('inputAnioPago');
+        $abono->importe = $importe;
+        $abono->tasa_administracion = $tasaAdmonPago;
+        $abono->tasa_bienestar = $tasaBienestarPago;
+        $abono->factura = '';
+        $abono->save();
+
+        // Guardar factura
+        $factura = $request->file("inputFactura");
+        $fecha = now()->format('YmdHis');
+        $idAbono = str_pad($abono->id, 4, '0', STR_PAD_LEFT);
+        $extension = $factura->getClientOriginalExtension();
+        $facturaNombre = "abono_{$fecha}_{$pagoUsuarioId}_{$idAbono}.{$extension}";
+        $factura->storeAs('public/facturas', $facturaNombre);
+
+        $abono->factura = $facturaNombre;
+        $abono->save();
+
+        // Actualizar estado del pago si se paga completamente
+        if (($deudaPendiente - $importe) <= 0) {
+            PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Completo']);
+        }
+
+        return redirect()->back()->with('success', 'Abono registrado correctamente.');
     }
+
+
+
+
+    public function editar(Abono $abono)
+    {
+        $pago = $abono->pagoUsuario_id;
+        $usuario = PagoUsuario::where('id', $pago)->value('usuario_id');
+        $tasas = TasaUsuario::select('id', 'anio', 'tipo', 'tasa')
+            ->orderBy('anio')
+            ->get()
+            ->groupBy('anio');
+        return view('procesos.pagoUsuarios.editarAbono', compact('abono', 'usuario', 'tasas', 'pago'));
+    }
+
+
+    public function updateAbono(Request $request, Abono $abono)
+    {
+        $request->validate([
+            'inputAnioPago' => 'required|exists:tasas_usuarios,id',
+            'inputImporte' => 'required|numeric',
+            'inputFactura' => 'nullable|mimes:pdf|max:2048'
+        ], [
+            'inputAnioPago.required' => 'Debe seleccionar un año de abono.',
+            'inputAnioPago.exists' => 'El año seleccionado no es válido.',
+            'inputImporte.required' => 'El campo "Importe" es obligatorio.',
+            'inputImporte.numeric' => 'El "Importe" debe ser un número.',
+            'inputFactura.mimes' => 'La factura debe estar en formato PDF.',
+            'inputFactura.max' => 'La factura no debe superar los 2MB.'
+        ]);
+
+        $pagoUsuarioId = $abono->pagoUsuario_id;
+
+        // Calcular deuda pendiente excluyendo el abono actual
+        $pagosConAbonos = DB::table('pagos_usuarios as pp')
+            ->leftJoin('abonos as a', 'a.pagoUsuario_id', '=', 'pp.id')
+            ->select(
+                'pp.importe as Deuda',
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
+            )
+            ->where('pp.id', $pagoUsuarioId)
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+        $deudaPendiente = $pagosConAbonos->Deuda - ($pagosConAbonos->Abonado - $abono->importe);
+
+        if ($request->input('inputImporte') > $deudaPendiente) {
+            return redirect()->back()->with('error', 'El abono excede la deuda pendiente.');
+        }
+
+        // Actualizar importe y tasas
+        $importe = $request->input('inputImporte');
+        $tasaSeleccionada = TasaUsuario::findOrFail($request->input('inputAnioPago'));
+        $anio = $tasaSeleccionada->anio;
+
+        $tasaAdministracion = TasaUsuario::where('anio', $anio)->where('tipo', 1)->first();
+        $tasaBienestar = TasaUsuario::where('anio', $anio)->where('tipo', 2)->first();
+
+        $abono->anio_pago = $request->input('inputAnioPago');
+        $abono->importe = $importe;
+        $abono->tasa_administracion = $importe * ($tasaAdministracion->tasa / 100);
+        $abono->tasa_bienestar = $importe * ($tasaBienestar->tasa / 100);
+
+        // Manejo de factura si se sube un nuevo archivo
+        if ($request->hasFile('inputFactura')) {
+            $factura = $request->file('inputFactura');
+            if ($abono->factura && Storage::exists('public/facturas/' . $abono->factura)) {
+                Storage::delete('public/facturas/' . $abono->factura);
+            }
+            $fecha = now()->format('YmdHis');
+            $pagoId = str_pad($abono->pagoUsuario_id, 2, '0', STR_PAD_LEFT);
+            $extension = $factura->getClientOriginalExtension();
+            $facturaNombre = "abono_{$fecha}_{$pagoId}.{$extension}";
+            $factura->storeAs('public/facturas', $facturaNombre);
+            $abono->factura = $facturaNombre;
+        }
+
+        $abono->save();
+
+        $usuarioId = PagoUsuario::where('id', $pagoUsuarioId)->value('usuario_id');
+
+        return redirect("/pagos/detalle/abonos/{$usuarioId}/{$pagoUsuarioId}")
+            ->with('success', 'Abono actualizado correctamente.');
+    }
+
+
+
 
 
     public function detalleAbono($idUsuario, $idPago)
@@ -173,5 +259,24 @@ class AbonoController extends Controller
             ->with('tasas', $tasas)
             ->with('totalPagado', $totalPagado)
             ->with('registrarAbono', $registrarAbono);
+    }
+
+    public function destroy($id)
+    {
+        $abono = Abono::findOrFail($id);
+
+        try {
+            // Eliminar el archivo de la factura si existe
+            if ($abono->factura && Storage::exists('public/facturas/' . $abono->factura)) {
+                Storage::delete('public/facturas/' . $abono->factura);
+            }
+
+            // Eliminar el registro de la base de datos
+            $abono->delete(); // Las relaciones con `onDelete('cascade')` se respetan
+
+            return redirect()->back()->with('success', 'Abono eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'No se pudo eliminar el abono. Asegúrese de que no tenga registros relacionados.');
+        }
     }
 }
