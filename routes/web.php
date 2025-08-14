@@ -8,7 +8,9 @@ use App\Http\Controllers\pagoUsuarios\ComentarioPagoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\pagoUsuarios\PagoController;
 use App\Http\Controllers\pagoUsuarios\UsuarioController;
+use App\Http\Controllers\tasas\TasaController;
 use App\Models\ComentarioPago;
+use App\Exports\TasasExport;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -77,6 +79,16 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/pagos/{id}', [PagoController::class, 'destroy'])->name('pagos.destroy');
     Route::delete('/abonos/{id}', [AbonoController::class, 'destroy'])->name('abonos.destroy');
+
+
+
+
+    Route::get('/tasas', [TasaController::class, 'listarTasas'])->name('tasas.listar');
+    Route::post('/tasas', [TasaController::class, 'store'])->name('tasas.store');
+
+    Route::get('/tasas/detalle/{anio}', [TasaController::class, 'edit'])->name('tasas.edit');
+    Route::put('/tasas/{anio}', [TasaController::class, 'update'])->name('tasas.update');
+    Route::get('/tasas/exportar', [TasaController::class, 'exportar'])->name('tasas.exportar');
 });
 
 

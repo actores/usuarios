@@ -32,7 +32,9 @@ class Abono extends Model
     // Relación con TasaUsuario
     public function tasa()
     {
-        return $this->belongsTo(TasaUsuario::class, 'anio_pago');
+        return $this->belongsTo(TasaUsuario::class, 'anio_pago','anio');
     }
+
+    
     
 }
