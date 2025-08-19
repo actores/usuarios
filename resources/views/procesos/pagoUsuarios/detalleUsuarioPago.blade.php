@@ -142,14 +142,14 @@
                         @endphp
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-2">{{ $detallePago->anio }}</td>
-                            <td class="px-4 py-2">${{ number_format($detallePago->importe, 0, ',', '.') }}</td>
+                            <td class="px-4 py-2">${{ number_format($detallePago->importe, 2, ',', '.') }}</td>
                             <td class="px-4 py-2">
                                 {{ number_format($detallePago->tasa_tipo1, 0, ',', '.') }}% -
-                                ${{ number_format($detallePago->tasa_administracion, 0, ',', '.') }}
+                                ${{ number_format($detallePago->tasa_administracion, 2, ',', '.') }}
                             </td>
                             <td class="px-4 py-2">
-                                {{ number_format($detallePago->tasa_tipo2, 0, ',', '.') }}% -
-                                ${{ number_format($detallePago->tasa_bienestar, 0, ',', '.') }}
+                                {{ number_format($detallePago->tasa_tipo2, 2, ',', '.') }}% -
+                                ${{ number_format($detallePago->tasa_bienestar, 2, ',', '.') }}
                             </td>
                             <td class="px-4 py-2">
                                 <a href="{{ $urlDescarga }}" target="_blank" class="text-sky-600 hover:underline">Ver factura</a>
@@ -289,7 +289,8 @@
                                 id="inputImporte"
                                 name="inputImporte"
                                 placeholder="Ingresa valor de importe"
-                                class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" step="0.01"
+                                    min="0">
                         </div>
 
                         <!-- Factura -->

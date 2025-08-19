@@ -103,55 +103,57 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-center text-gray-700">
                         @forelse ($pagos as $pago)
-                            @php
-                            $rutaArchivo = 'facturas/' . $pago->factura;
-                            $urlDescarga = asset(Storage::url($rutaArchivo));
+                        @php
+                        $rutaArchivo = 'facturas/' . $pago->factura;
+                        $urlDescarga = asset(Storage::url($rutaArchivo));
 
-                            $porcentajeReal = round($pago->porcentaje_pago, 1); // Redondeo solo a 1 decimal para mostrar
-                            $porcentajeTexto = number_format($porcentajeReal, 1, ',', '.');
+                        $porcentajeReal = round($pago->porcentaje_pago, 1); // Redondeo solo a 1 decimal para mostrar
+                        $porcentajeTexto = number_format($porcentajeReal, 1, ',', '.');
 
-                            // Asignar color según rangos más pequeños
-                            if ($porcentajeReal <= 10) {
-                                $color='bg-red-700' ;
-                                $preferWhite=true;
-                                } elseif ($porcentajeReal <=20) {
-                                $color='bg-red-500' ;
-                                $preferWhite=true;
-                                } elseif ($porcentajeReal <=30) {
-                                $color='bg-orange-600' ;
-                                $preferWhite=true;
-                                } elseif ($porcentajeReal <=40) {
-                                $color='bg-orange-400' ;
-                                $preferWhite=true;
-                                } elseif ($porcentajeReal <=50) {
-                                $color='bg-yellow-500' ;
-                                $preferWhite=false;
-                                } elseif ($porcentajeReal <=60) {
-                                $color='bg-yellow-400' ;
-                                $preferWhite=false;
-                                } elseif ($porcentajeReal <=70) {
-                                $color='bg-lime-400' ;
-                                $preferWhite=false;
-                                } elseif ($porcentajeReal <=80) {
-                                $color='bg-lime-500' ;
-                                $preferWhite=false;
-                                } elseif ($porcentajeReal <=90) {
-                                $color='bg-green-500' ;
-                                $preferWhite=true;
-                                } else {
-                                $color='bg-green-700' ;
-                                $preferWhite=true;
-                                }
+                        // Asignar color según rangos más pequeños
+                        if ($porcentajeReal <= 10) {
+                            $color='bg-red-700' ;
+                            $preferWhite=true;
+                            } elseif ($porcentajeReal <=20) {
+                            $color='bg-red-500' ;
+                            $preferWhite=true;
+                            } elseif ($porcentajeReal <=30) {
+                            $color='bg-orange-600' ;
+                            $preferWhite=true;
+                            } elseif ($porcentajeReal <=40) {
+                            $color='bg-orange-400' ;
+                            $preferWhite=true;
+                            } elseif ($porcentajeReal <=50) {
+                            $color='bg-yellow-500' ;
+                            $preferWhite=false;
+                            } elseif ($porcentajeReal <=60) {
+                            $color='bg-yellow-400' ;
+                            $preferWhite=false;
+                            } elseif ($porcentajeReal <=70) {
+                            $color='bg-lime-400' ;
+                            $preferWhite=false;
+                            } elseif ($porcentajeReal <=80) {
+                            $color='bg-lime-500' ;
+                            $preferWhite=false;
+                            } elseif ($porcentajeReal <=90) {
+                            $color='bg-green-500' ;
+                            $preferWhite=true;
+                            } else {
+                            $color='bg-green-700' ;
+                            $preferWhite=true;
+                            }
                             @endphp
 
                             <tr class="hover:bg-gray-50">
                             <td class="px-4 py-2 text-center">{{ $pago->anio_explotacion }}</td>
-                            <td class="px-4 py-2 text-center">${{ number_format($pago->importe, 0, ',', '.') }}</td>
+                            <td class="px-4 py-2 text-center">
+                                ${{ number_format($pago->importe, 2, ',', '.') }}
+                            </td>
                             <td class="px-4 py-2 text-center">
                                 <a href="{{ $urlDescarga }}" class="text-sky-600 hover:underline" target="_blank">Ver factura</a>
                             </td>
                             <td class="px-4 py-2 text-center">
-                                ${{ number_format($pago->total_abonos, 0, ',', '.') }}
+                                ${{ number_format($pago->total_abonos, 2, ',', '.') }}
                             </td>
 
                             <td class="px-4 py-2 text-center">
@@ -282,9 +284,13 @@
                                 <label for="inputImporte" class="block text-sm font-medium text-gray-700">
                                     Importe
                                 </label>
-                                <input type="number" name="inputImporte" id="inputImporte"
+                                <input type="number"
+                                    name="inputImporte"
+                                    id="inputImporte"
                                     class="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                                    placeholder="Ingresa valor de importe">
+                                    placeholder="Ingresa valor de importe"
+                                    step="0.01"
+                                    min="0">
                             </div>
 
                             <div>

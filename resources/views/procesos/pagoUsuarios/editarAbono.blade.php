@@ -42,7 +42,8 @@
                             name="inputImporte"
                             value="{{ old('inputImporte', $abono->importe) }}"
                             class="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required>
+                            required step="0.01"
+                            min="0">
                     </div>
 
                     <!-- Factura -->

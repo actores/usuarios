@@ -7,6 +7,7 @@ use App\Models\DetallePago;
 use Illuminate\Http\Request;
 use App\Models\PagoUsuario;
 use App\Exports\PagoYAbonosExport;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -105,9 +106,32 @@ class PagoController extends Controller
 
         $pago->save();
 
+        // 🔹 Recalcular deuda total después de actualizar el pago
+        $pagosConAbonos = DB::table('pagos_usuarios as pp')
+            ->leftJoin('abonos as a', 'a.pagoUsuario_id', '=', 'pp.id')
+            ->select(
+                'pp.importe as Deuda',
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
+            )
+            ->where('pp.id', $pago->id)
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+        $deudaPendiente = $pagosConAbonos ? $pagosConAbonos->Deuda - $pagosConAbonos->Abonado : 0;
+
+        // 🔹 Actualizar estado del pago según la deuda pendiente
+        if ($deudaPendiente <= 0) {
+            $pago->estadoPago = 'Completo';
+        } else {
+            $pago->estadoPago = 'Pendiente';
+        }
+
+        $pago->save();
+
         return redirect()->route('usuarios.detalle', $request->usuario_id)
             ->with('success', 'Pago actualizado correctamente.');
     }
+
 
 
 

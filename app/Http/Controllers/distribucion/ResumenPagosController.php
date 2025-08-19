@@ -11,7 +11,7 @@ class ResumenPagosController extends Controller
     // Listar pagos con totales de tasas
     public function listar()
     {
-        $pagos = PagoUsuario::with('abonos') // Asegúrate de definir la relación
+        $pagos = PagoUsuario::with(['abonos', 'usuario']) // Cargar relación abonos y usuario
             ->get()
             ->map(function ($pago) {
                 $totalAdmin = $pago->abonos->sum('tasa_administracion');
@@ -23,6 +23,8 @@ class ResumenPagosController extends Controller
                     'importe' => $pago->importe,
                     'total_admin' => $totalAdmin,
                     'total_bienestar' => $totalBienestar,
+                    'usuario_nombre' => $pago->usuario->nombre, // Nombre del usuario
+                    'estado_pago' => $pago->estadoPago,          // Estado del pago
                 ];
             });
 

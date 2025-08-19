@@ -25,7 +25,7 @@
                             <label for="inputImporte" class="block text-sm font-medium text-gray-700 mb-1">Importe</label>
                             <input type="number" step="0.01" name="inputImporte" id="inputImporte"
                                 class="block w-full border border-gray-300 rounded px-3 py-2"
-                                value="{{ old('inputImporte', $pago->importe) }}" required>
+                                value="{{ old('inputImporte', $pago->importe) }}" step="0.01" min="0" required>
                         </div>
                     </div>
 

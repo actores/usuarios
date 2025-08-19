@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('importe', 14, 2);
             $table->string('factura')->nullable();
             $table->string('estadoPago');
+            $table->boolean('distribuido')->default(false); // <-- nuevo campo
             $table->timestamps();
 
             // Definir la llave foránea

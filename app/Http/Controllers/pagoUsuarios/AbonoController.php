@@ -15,6 +15,7 @@ class AbonoController extends Controller
 {
     public function nuevoAbono(Request $request)
     {
+        // Validación de entrada
         $request->validate([
             'inputAnioPago' => 'required|numeric',
             'inputImporte' => 'required|numeric',
@@ -43,9 +44,12 @@ class AbonoController extends Controller
             ->groupBy('pp.id', 'pp.importe')
             ->first();
 
-        $deudaPendiente = $pagosConAbonos->Deuda - $pagosConAbonos->Abonado;
+        $deudaPendiente = round($pagosConAbonos->Deuda - $pagosConAbonos->Abonado, 2);
+        $importe = round($importe, 2);
 
-        if ($importe > $deudaPendiente) {
+        // Validación del abono (permitir completar exactamente la deuda)
+        dd($importe - $deudaPendiente);
+        if ($importe - $deudaPendiente > 0.01) {
             return redirect()->back()->with('error', 'El abono excede la deuda pendiente.');
         }
 
@@ -56,10 +60,10 @@ class AbonoController extends Controller
         $tasaAdministracion = TasaUsuario::where('anio', $anio)->where('tipo', 1)->first();
         $tasaBienestar = TasaUsuario::where('anio', $anio)->where('tipo', 2)->first();
 
-        $tasaAdmonPago = $importe * ($tasaAdministracion->tasa / 100);
-        $tasaBienestarPago = $importe * ($tasaBienestar->tasa / 100);
+        $tasaAdmonPago = round($importe * ($tasaAdministracion->tasa / 100), 2);
+        $tasaBienestarPago = round($importe * ($tasaBienestar->tasa / 100), 2);
 
-        // Crear abono sin factura
+        // Crear abono
         $abono = new Abono();
         $abono->pagoUsuario_id = $pagoUsuarioId;
         $abono->anio_pago = $request->input('inputAnioPago');
@@ -80,13 +84,17 @@ class AbonoController extends Controller
         $abono->factura = $facturaNombre;
         $abono->save();
 
-        // Actualizar estado del pago si se paga completamente
-        if (($deudaPendiente - $importe) <= 0) {
+        // Actualizar estado del pago si se completa la deuda
+        $totalAbonado = round($pagosConAbonos->Abonado + $importe, 2);
+        if ($totalAbonado >= $pagosConAbonos->Deuda) {
             PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Completo']);
         }
 
         return redirect()->back()->with('success', 'Abono registrado correctamente.');
     }
+
+
+
 
 
 
@@ -165,6 +173,26 @@ class AbonoController extends Controller
         }
 
         $abono->save();
+
+        // 🔹 Recalcular deuda total después de la actualización
+        $pagosConAbonos = DB::table('pagos_usuarios as pp')
+            ->leftJoin('abonos as a', 'a.pagoUsuario_id', '=', 'pp.id')
+            ->select(
+                'pp.importe as Deuda',
+                DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
+            )
+            ->where('pp.id', $pagoUsuarioId)
+            ->groupBy('pp.id', 'pp.importe')
+            ->first();
+
+        $deudaPendienteFinal = $pagosConAbonos->Deuda - $pagosConAbonos->Abonado;
+
+        // 🔹 Actualizar estado del pago según la deuda pendiente
+        if ($deudaPendienteFinal <= 0) {
+            PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Completo']);
+        } else {
+            PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Pendiente']);
+        }
 
         $usuarioId = PagoUsuario::where('id', $pagoUsuarioId)->value('usuario_id');
 
@@ -264,6 +292,7 @@ class AbonoController extends Controller
     public function destroy($id)
     {
         $abono = Abono::findOrFail($id);
+        $pagoUsuarioId = $abono->pagoUsuario_id;
 
         try {
             // Eliminar el archivo de la factura si existe
@@ -273,6 +302,26 @@ class AbonoController extends Controller
 
             // Eliminar el registro de la base de datos
             $abono->delete(); // Las relaciones con `onDelete('cascade')` se respetan
+
+            // 🔹 Recalcular deuda total después de la eliminación
+            $pagosConAbonos = DB::table('pagos_usuarios as pp')
+                ->leftJoin('abonos as a', 'a.pagoUsuario_id', '=', 'pp.id')
+                ->select(
+                    'pp.importe as Deuda',
+                    DB::raw('COALESCE(SUM(a.importe), 0) as Abonado')
+                )
+                ->where('pp.id', $pagoUsuarioId)
+                ->groupBy('pp.id', 'pp.importe')
+                ->first();
+
+            $deudaPendiente = $pagosConAbonos ? $pagosConAbonos->Deuda - $pagosConAbonos->Abonado : 0;
+
+            // 🔹 Actualizar estado del pago según la deuda pendiente
+            if ($deudaPendiente <= 0) {
+                PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Completo']);
+            } else {
+                PagoUsuario::where('id', $pagoUsuarioId)->update(['estadoPago' => 'Pendiente']);
+            }
 
             return redirect()->back()->with('success', 'Abono eliminado correctamente.');
         } catch (\Exception $e) {

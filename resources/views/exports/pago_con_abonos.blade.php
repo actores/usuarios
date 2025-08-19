@@ -48,7 +48,7 @@
         @foreach ($abonos as $abono)
             <tr>
                 <td>{{ $abono->id }}</td>
-                <td>{{ $abono->anio_pago }}</td>
+                <td>{{ $abono->tasa->anio }}</td>
                 <td>{{ number_format($abono->importe, 2) }}</td>
                 <td>{{ number_format($abono->tasa_administracion, 2) }}</td>
                 <td>{{ number_format($abono->tasa_bienestar, 2) }}</td>
