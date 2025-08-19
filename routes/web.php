@@ -11,7 +11,9 @@ use App\Http\Controllers\pagoUsuarios\UsuarioController;
 use App\Http\Controllers\tasas\TasaController;
 use App\Models\ComentarioPago;
 use App\Exports\TasasExport;
+use App\Http\Controllers\PagoUsuarios\TipoUsuarioController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Distribucion\ResumenPagosController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -89,6 +91,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasas/detalle/{anio}', [TasaController::class, 'edit'])->name('tasas.edit');
     Route::put('/tasas/{anio}', [TasaController::class, 'update'])->name('tasas.update');
     Route::get('/tasas/exportar', [TasaController::class, 'exportar'])->name('tasas.exportar');
+
+
+
+    Route::get('/tipousuarios', [TipoUsuarioController::class, 'listarTiposUsuarios'])->name('tipos_usuarios.listar');
+    Route::post('/tipousuarios', [TipoUsuarioController::class, 'storeTipoUsuario'])->name('tipos_usuarios.store');
+    // Mostrar formulario de edición
+    Route::get('/tipousuarios/{id}/edit', [TipoUsuarioController::class, 'editTipoUsuario'])
+        ->name('tipos_usuarios.edit');
+
+    // Actualizar tipo de usuario
+    Route::put('/tipousuarios/{id}', [TipoUsuarioController::class, 'updateTipoUsuario'])
+        ->name('tipos_usuarios.update');
+
+    Route::get('/tipousuarios/exportar', [TipoUsuarioController::class, 'exportarTiposUsuarios'])
+        ->name('tipos_usuarios.exportar');
+
+
+
+    Route::get('/distribucion', [ResumenPagosController::class, 'listar'])->name('resumen.pagos.listar');
 });
 
 

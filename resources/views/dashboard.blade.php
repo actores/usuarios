@@ -14,7 +14,7 @@
                         'bg' => 'bg-blue-100',
                     ],
                     [
-                        'titulo' => 'Tipo Usuarios',
+                        'titulo' => 'Tipos de Usuarios',
                         'descripcion' => 'Gestión de tipado de usuarios.',
                         'ruta' => '/tipousuarios',
                         'icono' => 'type',

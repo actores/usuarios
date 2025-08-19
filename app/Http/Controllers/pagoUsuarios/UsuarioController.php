@@ -145,4 +145,9 @@ class UsuarioController extends Controller
 
         return view('procesos.pagoUsuarios.detalleUsuario', compact('usuario', 'pagos', 'tiposUsuario'));
     }
+
+
+    public function listarTipos(){
+        return "Listar tipo usuarios";
+    }
 }
